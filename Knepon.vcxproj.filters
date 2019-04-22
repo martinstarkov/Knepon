@@ -20,7 +20,6 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Player.cpp" />
     <ClCompile Include="src\TextureManager.cpp" />
-    <ClCompile Include="src\VectorMath.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Game.h" />
@@ -28,10 +27,8 @@
     <ClInclude Include="src\Hitbox.h" />
     <ClInclude Include="src\InputHandler.h" />
     <ClInclude Include="src\Player.h" />
-    <ClInclude Include="src\Rectangle.h" />
     <ClInclude Include="src\TextureManager.h" />
     <ClInclude Include="src\Vector2D.h" />
-    <ClInclude Include="src\VectorMath.h" />
     <ClInclude Include="src\common.h" />
   </ItemGroup>
 </Project>

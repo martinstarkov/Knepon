@@ -19,28 +19,22 @@ bool TextureManager::load(std::string filePath, std::string id, SDL_Renderer* re
 	return false;
 }
 
-void TextureManager::draw(std::string id, Rectangle rectangle, SDL_Renderer* renderer, SDL_RendererFlip flip) {
-	SDL_Rect srcRect, destRect;
+void TextureManager::draw(std::string id, SDL_Rect rectangle, SDL_Renderer* renderer, SDL_RendererFlip flip) {
+	SDL_Rect srcRect;
 	srcRect.x = 0;
 	srcRect.y = 0;
-	srcRect.w = destRect.w = (int)rectangle.w;
-	srcRect.h = destRect.h = (int)rectangle.h;
-	destRect.x = (int)rectangle.x;
-	destRect.y = (int)rectangle.y;
-	SDL_RenderCopyEx(renderer, textureMap[id], &srcRect, &destRect, NULL, NULL, flip);
+	srcRect.w = rectangle.w;
+	srcRect.h = rectangle.h;
+	SDL_RenderCopyEx(renderer, textureMap[id], &srcRect, &rectangle, NULL, NULL, flip);
 }
 
-void TextureManager::animate(std::string id, double phase, Rectangle rectangle, SDL_Renderer* renderer, SDL_RendererFlip flip) {
-	SDL_Rect src, dest;
-	src.y = 0;
-	src.x = (int)rectangle.w * int(floor (phase));
-	src.w = (int)rectangle.w;
-	src.h = (int)rectangle.h;
-	dest.x = (int)rectangle.x;
-	dest.y = (int)rectangle.y;
-	dest.w = (int)rectangle.w;
-	dest.h = (int)rectangle.h;
-	SDL_RenderCopyEx(renderer, textureMap[id], &src, &dest, NULL, NULL, flip);
+void TextureManager::drawAnimated(std::string id, int phase, SDL_Rect rectangle, SDL_Renderer* renderer, SDL_RendererFlip flip) {
+	SDL_Rect srcRect;
+	srcRect.y = 0;
+	srcRect.x = rectangle.w * floor(phase);
+	srcRect.w = rectangle.w;
+	srcRect.h = rectangle.h;
+	SDL_RenderCopyEx(renderer, textureMap[id], &srcRect, &rectangle, NULL, NULL, flip);
 }
 
 void TextureManager::clearFromTextureMap(std::string id) {

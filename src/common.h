@@ -13,5 +13,3 @@
 #include "TextureManager.h"
 #include "Hitbox.h"
 #include "Vector2D.h"
-#include "VectorMath.h"
-#include "Rectangle.h"

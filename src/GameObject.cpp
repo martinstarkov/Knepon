@@ -1,38 +1,47 @@
 #include "common.h"
 
-GameObject::GameObject(std::string name, std::string texturePath, Rectangle objectRectangle, bool hasGravity) : hitbox({ objectRectangle.x, objectRectangle.y, objectRectangle.w, objectRectangle.h }) {
+GameObject::GameObject(std::string name, std::string texturePath, SDL_Rect objectRectangle, bool hasGravity, SDL_RendererFlip dir) : hitbox({ objectRectangle.x, objectRectangle.y, objectRectangle.w, objectRectangle.h }) {
 	id = name;
 	texture = texturePath;
-	rectangle.x = position.x = objectRectangle.x;
-	rectangle.y = position.y = objectRectangle.y;
-	rectangle.w = objectRectangle.w;
-	rectangle.h = objectRectangle.h;
+	rectangle = { objectRectangle.x, objectRectangle.y, objectRectangle.w, objectRectangle.h };
 	falling = hasGravity;
+	direction = dir;
 	Game::getInstance()->gameObjects.push_back(this);
-	TextureManager::getInstance()->load(texture, id, Game::getInstance()->Game::getRenderer());
-}
-
-void GameObject::updateNewPosition() {
-	hitbox.min.x = rectangle.x;
-	hitbox.min.y = rectangle.y + rectangle.h;
-	hitbox.max.x = rectangle.x + rectangle.w;
-	hitbox.max.y = rectangle.y;
-}
-
-void GameObject::updateOldPosition() {
-	hitbox.oldMin.x = hitbox.min.x;
-	hitbox.oldMax.x = hitbox.max.x;
-	hitbox.oldMax.y = hitbox.max.y;
-	hitbox.oldMin.y = hitbox.min.y;
-}
-
-void GameObject::updatePosition() {
-	//tile scrolling
-	rectangle.x = position.x - Player::getInstance()->camera.x;
-	rectangle.y = position.y - Player::getInstance()->camera.y;
-	updateOldPosition();
-	updateNewPosition();
+	if (TextureManager::getInstance()->textureMap.count(id) == 0) {
+		TextureManager::getInstance()->load(texture, id, Game::getInstance()->Game::getRenderer());
+	}
 }
 
 GameObject::~GameObject() {
+}
+
+void GameObject::move(MovementDirections dir, Vector2D speed) {
+	switch (dir) {
+		case RIGHT: {
+			velocity.x = speed.x;
+			direction = SDL_FLIP_HORIZONTAL;
+			break;
+		}
+		case LEFT: {
+			velocity.x = -speed.x;
+			direction = SDL_FLIP_NONE;
+			break;
+		}
+		case UP: {
+			if (!jumping) {
+				jumping = true;
+				velocity.y += -speed.y;
+			}
+			break;
+		}
+		case DOWN: {
+			velocity.y = speed.x;
+			break;
+		}
+	}
+}
+
+void GameObject::updatePosition() {
+	rectangle.x += velocity.x;
+	rectangle.y += velocity.y;
 }

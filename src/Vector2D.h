@@ -2,6 +2,6 @@
 
 struct Vector2D {
 public:
-	double x;
-	double y;
+	int x;
+	int y;
 };

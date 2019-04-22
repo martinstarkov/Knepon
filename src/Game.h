@@ -19,8 +19,8 @@ public:
 		return running; 
 	}
 	std::vector<GameObject*> gameObjects;
-	bool init(const char* title, int xpos, int ypos, int width, int height, int flags);
-	void handleEvents(SDL_Event event);
+	bool init(const char* title, int x, int y, int width, int height, int flags);
+	void handleEvents(SDL_Event* event);
 	void update();
 	void render();
 	void clean();

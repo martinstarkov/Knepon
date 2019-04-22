@@ -1,7 +1,7 @@
 #include "common.h"
 
-Hitbox::Hitbox(Rectangle dimensions) {
-	oldMin = min = { dimensions.x, dimensions.y + dimensions.h };
-	oldMax = max = { dimensions.x + dimensions.w, dimensions.y };
-	size = { dimensions.w, dimensions.h };
+Hitbox::Hitbox(SDL_Rect rectangle) {
+	oldMin = min = { rectangle.x, rectangle.y + rectangle.h };
+	oldMax = max = { rectangle.x + rectangle.w, rectangle.y };
+	size = { rectangle.w, rectangle.h };
 }
