@@ -17,8 +17,7 @@ public:
 
 	double animationPhase = 0;
 	bool jumping = false;
-	bool canMoveRight = true, canMoveLeft = true, canMoveUp = true, canMoveDown = true;
-	GameObject* rightCollider = nullptr, * leftCollider = nullptr, * topCollider = nullptr, * bottomCollider = nullptr;
+	std::vector<SDL_Rect> collidingGrid;
 	int phases = 4;
 private:
 	static Player* instance;
