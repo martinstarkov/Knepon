@@ -3,26 +3,29 @@
 InputHandler* InputHandler::instance = 0;
 
 void InputHandler::inputKeyStates(const Uint8* states) {
-	Player* player = Player::getInstance();
-	if (states[LEFT]) {
-		player->move(LEFT, player->speed);
-	} else if (!states[LEFT]) {
-		player->move(LEFT, { 0, 0 });
+	if (states[LEFT] && states[RIGHT] == 0) {
+		Player::getInstance()->move(LEFT, Player::getInstance()->speed);
 	}
-	if (states[RIGHT]) {
-		player->move(RIGHT, player->speed);
-	} else if (!states[RIGHT]) {
-		player->move(RIGHT, { 0, 0 });
+	if (states[RIGHT] && states[LEFT] == 0) {
+		Player::getInstance()->move(RIGHT, Player::getInstance()->speed);
 	}
-	if (states[UP]) {
-		player->move(UP, player->speed);
-	} else if (!states[UP]) {
-		player->move(UP, { 0, 0 });
+	if (states[UP] && states[DOWN] == 0) {
+		Player::getInstance()->move(UP, Player::getInstance()->speed);
 	}
-	if (states[DOWN]) {
-		player->move(DOWN, player->speed);
-	} else if (!states[DOWN]) {
-		player->move(DOWN, { 0, 0 });
+	if (states[DOWN] && states[UP] == 0) {
+		Player::getInstance()->move(DOWN, Player::getInstance()->speed);
+	}
+	if (states[LEFT] == 0 && Player::getInstance()->velocity.x < 0) {
+		Player::getInstance()->move(LEFT, { 0, 0 });
+	}
+	if (states[DOWN] == 0 && Player::getInstance()->velocity.y > 0) {
+		Player::getInstance()->move(DOWN, { 0, 0 });
+	}
+	if (states[UP] == 0 && Player::getInstance()->velocity.y < 0) {
+		Player::getInstance()->move(UP, { 0, 0 });
+	}
+	if (states[RIGHT] == 0 && Player::getInstance()->velocity.x > 0) {
+		Player::getInstance()->move(RIGHT, { 0, 0 });
 	}
 }
 

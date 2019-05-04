@@ -31,7 +31,7 @@ void TextureManager::draw(std::string id, SDL_Rect rectangle, SDL_Renderer* rend
 void TextureManager::drawAnimated(std::string id, int phase, SDL_Rect rectangle, SDL_Renderer* renderer, SDL_RendererFlip flip) {
 	SDL_Rect srcRect;
 	srcRect.y = 0;
-	srcRect.x = rectangle.w * floor(phase);
+	srcRect.x = rectangle.w * (int)floor(phase);
 	srcRect.w = rectangle.w;
 	srcRect.h = rectangle.h;
 	SDL_RenderCopyEx(renderer, textureMap[id], &srcRect, &rectangle, NULL, NULL, flip);

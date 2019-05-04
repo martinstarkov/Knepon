@@ -2,6 +2,9 @@
 
 struct Vector2D {
 public:
-	int x;
-	int y;
+	int x, y;
+};
+struct Size {
+public:
+	int w, h;
 };

@@ -8,8 +8,5 @@ public:
 	Vector2D max;
 	Vector2D oldMin;
 	Vector2D oldMax;
-	struct size {
-		int w, h;
-	};
-	size size;
+	Size size;
 };

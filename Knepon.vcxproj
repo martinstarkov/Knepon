@@ -139,6 +139,7 @@
     <None Include="zlib1.dll" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Level.cpp" />
     <ClCompile Include="src\Game.cpp" />
     <ClCompile Include="src\GameObject.cpp" />
     <ClCompile Include="src\Hitbox.cpp" />
@@ -146,8 +147,10 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Player.cpp" />
     <ClCompile Include="src\TextureManager.cpp" />
+    <ClCompile Include="src\TileMap.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Level.h" />
     <ClInclude Include="src\common.h" />
     <ClInclude Include="src\Game.h" />
     <ClInclude Include="src\GameObject.h" />
@@ -156,6 +159,7 @@
     <ClInclude Include="src\Player.h" />
     <ClInclude Include="src\TextureManager.h" />
     <ClInclude Include="src\Vector2D.h" />
+    <ClInclude Include="src\TileMap.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

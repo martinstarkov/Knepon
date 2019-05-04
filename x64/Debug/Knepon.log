@@ -2,9 +2,10 @@
   GameObject.cpp
   Hitbox.cpp
   InputHandler.cpp
-  main.cpp
+  Level.cpp
   Player.cpp
   TextureManager.cpp
-F:\Development\Knepon\src\TextureManager.cpp(34): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+  TileMap.cpp
+  main.cpp
   Generating Code...
   Knepon.vcxproj -> F:\Development\Knepon\x64\Debug\Knepon.exe

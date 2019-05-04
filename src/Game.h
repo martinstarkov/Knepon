@@ -1,5 +1,6 @@
 #pragma once
 #include "GameObject.h"
+#include "Level.h"
 
 class Game {
 public:
@@ -16,16 +17,19 @@ public:
 		return window;
 	}
 	bool isRunning() { 
-		return running; 
+		return running;
 	}
-	std::vector<GameObject*> gameObjects;
 	bool init(const char* title, int x, int y, int width, int height, int flags);
 	void handleEvents(SDL_Event* event);
 	void update();
 	void render();
 	void clean();
 	void quit();
+
+	int levelNumber = 1;
 	int tick = 0;
+	std::vector<GameObject*> gameObjects;
+	std::map<std::string, Level*> levels;
 private:
 	static Game* instance;
 	bool running;

@@ -2,8 +2,7 @@
 
 const int FPS = 60;
 const float SKIP_TICK = 1000.0f / FPS;
-extern const int SCREEN_WIDTH = 1200;
-extern const int SCREEN_HEIGHT = 800;
+extern const int SCREEN_WIDTH, SCREEN_HEIGHT;
 SDL_Event event;
 
 int main(int argc, char* args[]) {
