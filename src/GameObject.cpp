@@ -231,7 +231,7 @@ void DUGameObject::update(double dt) {
 			}
 		}
 	}
-	double minimumX = 555555555555;
+	double minimumX = 55555555555;
 	double finalX = 0;
 	for (auto pointX : collisionXBuffer) {
 		if (abs(pointX - position.x) < minimumX) {
@@ -275,7 +275,7 @@ void DUGameObject::update(double dt) {
 		}
 	}
 
-	double minimumY = 555555555555;
+	double minimumY = 55555555555;
 	double finalY = 0;
 	for (auto pointY : collisionYBuffer) {
 		if (abs(pointY - position.y) < minimumY) {
