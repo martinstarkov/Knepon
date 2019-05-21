@@ -1,6 +1,0 @@
-﻿  Game.cpp
-F:\Development\Knepon\src\Game.cpp(87): warning C4838: conversion from 'double' to 'int' requires a narrowing conversion
-F:\Development\Knepon\src\Game.cpp(87): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
-F:\Development\Knepon\src\Game.cpp(92): warning C4838: conversion from 'double' to 'int' requires a narrowing conversion
-F:\Development\Knepon\src\Game.cpp(92): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
-  Knepon.vcxproj -> F:\Development\Knepon\Debug\Knepon.exe
