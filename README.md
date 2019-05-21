@@ -1,2 +1,2 @@
 # Knepon
-Game
+2D Platformer

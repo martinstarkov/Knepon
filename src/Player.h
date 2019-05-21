@@ -1,24 +1,29 @@
 #pragma once
+#include "InputHandler.h"
 
 extern const int SCREEN_WIDTH, SCREEN_HEIGHT, LEVEL_WIDTH, LEVEL_HEIGHT;
 
-class Player : public GameObject {
+class Player : public DUGameObject {
 public:
-	Player(std::string name, std::string texturePath, SDL_Rect objectRectangle, bool hasGravity, SDL_RendererFlip dir);
+	Player(std::string aName = "player", Vector2D aPosition = { 0, 0}, std::string aType = "player", std::string aTexture = "resources/squirrel_resting.png", Vector2D playerSpeed = { 0, 0 }, SDL_RendererFlip aDirection = SDL_FLIP_NONE, Vector2D initVelocity = { 0, 0 });
 	~Player();
 	static Player* getInstance() {
 		if (instance == 0) {
-			instance = new Player("Player", "resources/squirrel_resting.png", { SCREEN_WIDTH / 2 - 8, SCREEN_HEIGHT / 2 - 8, 16, 16 }, true, SDL_FLIP_NONE);
+			instance = new Player("player", { 200, 200 }, "player", "resources/squirrel_resting.png", { 120, 120 });
 		}
 		return instance;
 	}
-	void move(MovementDirections dir, Vector2D speed);
-	virtual void updatePosition();
+	void update(double dt) override;
+	void updateCollisionsRadius();
+	void move(MovementDirections movementDirection);
+	void stop(Axis axis);
+	std::vector<Vector2D> collisionRadius;
+	static std::vector<GameObject*> collideableObjects;
 
-	double animationPhase = 0;
 	bool jumping = false;
-	std::vector<SDL_Rect> collidingGrid;
-	int phases = 4;
+	//std::vector<Vector2D> collidingGrid;
+	//std::vector<Vector2D> xCollidingGrid;
+	//std::vector<Vector2D> yCollidingGrid;
 private:
 	static Player* instance;
 };

@@ -10,30 +10,24 @@ public:
 		}
 		return instance;
 	}
-	SDL_Renderer* getRenderer() {
+	static SDL_Renderer* getRenderer() {
 		return renderer;
 	}
-	SDL_Window* getWindow() {
+	static SDL_Window* getWindow() {
 		return window;
 	}
-	bool isRunning() { 
+	static bool isRunning() {
 		return running;
 	}
 	bool init(const char* title, int x, int y, int width, int height, int flags);
 	void handleEvents(SDL_Event* event);
-	void update();
+	void update(double dt);
 	void render();
 	void clean();
 	void quit();
-
-	int levelNumber = 1;
-	int tick = 0;
-	std::vector<GameObject*> gameObjects;
-	std::map<std::string, Level*> levels;
 private:
 	static Game* instance;
-	bool running;
-	SDL_Window* window;
-	SDL_Renderer* renderer;
+	static bool running;
+	static SDL_Window* window;
+	static SDL_Renderer* renderer;
 };
-

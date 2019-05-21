@@ -2,9 +2,62 @@
 
 struct Vector2D {
 public:
-	int x, y;
-};
-struct Size {
-public:
-	int w, h;
+	double x, y;
+	Vector2D operator -(Vector2D vec2) {
+		return { x - vec2.x, y - vec2.y };
+	}
+	Vector2D operator -() {
+		return { -x, -y };
+	}
+	Vector2D operator -(double scalar) {
+		return { x - scalar, y - scalar };
+	}
+	Vector2D operator +(Vector2D vec2) {
+		return { x + vec2.x, y + vec2.y };
+	}
+	Vector2D operator +() {
+		return { abs(x), abs(y) };
+	}
+	Vector2D operator +(double scalar) {
+		return { x + scalar, y + scalar };
+	}
+	Vector2D operator /(double scalar) {
+		return { x / scalar, y / scalar };
+	}
+	Vector2D operator *(double scalar) {
+		return { x * scalar, y * scalar };
+	}
+	Vector2D operator ++() {
+		return { x++, y++ };
+	}
+	Vector2D operator --() {
+		return { x--, y-- };
+	}
+	double magnitude() {
+		return sqrt(x * x + y * y);
+	}
+	double dotProduct(Vector2D vec2) {
+		return x * vec2.x + y * vec2.y;
+	}
+	Vector2D normalize() {
+		return *this / magnitude();
+	}
+	Vector2D tangent() {
+		return { -y, x };
+	}
+	static double slope(Vector2D vec1, Vector2D vec2) {
+		return (vec2.y - vec1.y) / (vec2.x - vec1.x);
+	}
+	double distance(Vector2D vec2) {
+		return abs((*this - vec2).magnitude());
+	}
+	bool isZero() {
+		return x == 0 && y == 0;
+	}
+	std::string toString() {
+		return "[" + std::to_string(x) + ", " + std::to_string(y) + "]";
+	}
+	void print() {
+		std::cout << "Vector: " << toString() << std::endl;
+	}
 };

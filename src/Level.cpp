@@ -1,13 +1,12 @@
 #include "common.h"
 
-Level::Level(std::string levelName, std::string mapFilePath) {
-	name = levelName;
-	Game::getInstance()->levels[levelName] = this;
+Level::Level(std::string levelName, std::string mapFilePath) : name(levelName) {
+	GameWorld::levels[levelName] = this;
 	std::ifstream file(mapFilePath);
 	if (!file) {
 		std::cout << "Error, file " << mapFilePath << " could not be loaded into level " << levelName << "." << std::endl;
 	} else {
-		int rows = 0, columns = 0;
+		double rows = 0, columns = 0;
 		std::string line, item;
 		while (getline(file, line)) {
 			rows++;
@@ -20,44 +19,57 @@ Level::Level(std::string levelName, std::string mapFilePath) {
 				iss >> value;
 				row.push_back(value);
 			}
-			mapData.push_back(row);
+			levelData.push_back(row);
 		}
-		Game::getInstance()->gameObjects.clear();
-		if (mapData.size() > 0) {
-			for (int r = 0; r < mapData.size(); r++) {
-				for (int c = 0; c < mapData[0].size(); c++) {
-					if (mapData[r][c] == GRASS) {
-						GameObject* grass = new GameObject("grass", "resources/grass.png", { (c * TILE_WIDTH), (r * TILE_HEIGHT), TILE_WIDTH, TILE_HEIGHT }, false, SDL_FLIP_NONE);
-					} else if (mapData[r][c] == DIRT) {
-						GameObject* dirt = new GameObject("dirt", "resources/dirt.png", { (c * TILE_WIDTH), (r * TILE_HEIGHT), TILE_WIDTH, TILE_HEIGHT }, false, SDL_FLIP_NONE);
-					}
+		for (double r = 0; r < rows; r++) {
+			std::vector<DGameObject*> tmpVec;
+			std::vector<UGameObject*> tmpVec2;
+			for (double c = 0; c < columns; c++) {
+				DGameObject* dobject = nullptr;
+				UGameObject* uobject = nullptr;
+				int code = levelData[int(r)][int(c)];
+				if (code == GRASS) {
+					dobject = new DGameObject("grass", { c * double(TILE_WIDTH), r * double(TILE_WIDTH) }, "resources/grass.png");
+					dobject->setTilePosition({ c, r });
+				} else if (code == DIRT) {
+					dobject = new DGameObject("dirt", { c * double(TILE_WIDTH), r * double(TILE_WIDTH) }, "resources/dirt.png");
+					dobject->setTilePosition({ c, r });
+				} else if (code == 800) {
+					uobject = new UGameObject("trigger1", { c * double(TILE_WIDTH), r * double(TILE_WIDTH) }, "create bridge");
+					uobject->setTilePosition({ c, r });
 				}
+				tmpVec.push_back(dobject);
+				tmpVec2.push_back(uobject);
 			}
+			drawableLevelObjects.push_back(tmpVec);
+			updateableLevelObjects.push_back(tmpVec2);
 		}
 	}
 }
 
 void Level::drawLevel() {
-	if (mapData.size() > 0) {
-		for (int r = 0; r < mapData.size(); r++) {
-			for (int c = 0; c < mapData[0].size(); c++) {
-				if (mapData[r][c] == GRASS) {
-					TextureManager::getInstance()->draw("grass", { (c * TILE_WIDTH), (r * TILE_HEIGHT), TILE_WIDTH, TILE_HEIGHT }, Game::getInstance()->getRenderer(), SDL_FLIP_NONE);
-				} else if (mapData[r][c] == DIRT) {
-					TextureManager::getInstance()->draw("dirt", { (c * TILE_WIDTH), (r * TILE_HEIGHT), TILE_WIDTH, TILE_HEIGHT }, Game::getInstance()->getRenderer(), SDL_FLIP_NONE);
+	if (this != nullptr) {
+		if (drawableLevelObjects.size() > 0) {
+			for (int r = 0; r < drawableLevelObjects.size(); r++) {
+				for (int c = 0; c < drawableLevelObjects[0].size(); c++) {
+					if (drawableLevelObjects[r][c] != nullptr) {
+						drawableLevelObjects[r][c]->draw();
+					}
 				}
 			}
+		} else {
+			std::cout << "Unable to draw level " << name << " as map data is incomplete" << std::endl;
 		}
 	} else {
-		std::cout << "Unable to draw level " << name << " as map data is incomplete" << std::endl;
+		std::cout << "Please set a current level before attempting to drawing one." << std::endl;
 	}
 }
 
 void Level::printMapData() {
 	std::cout << name << " layout:" << std::endl;
-	for (int r = 0; r < mapData.size(); r++) {
-		for (int c = 0; c < mapData[0].size(); c++) {
-			std::cout << mapData[r][c];
+	for (int r = 0; r < levelData.size(); r++) {
+		for (int c = 0; c < levelData[0].size(); c++) {
+			std::cout << levelData[r][c];
 		}
 		std::cout << std::endl;
 	}

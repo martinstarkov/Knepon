@@ -10,6 +10,17 @@ public:
 	void printMapData();
 	void drawLevel();
 
-	std::vector<std::vector<int>> mapData;
+	GameObject* getTile(int x, int y) {
+		if (x < drawableLevelObjects.size()) {
+			if (y < drawableLevelObjects[x].size()) {
+				return drawableLevelObjects[x][y];
+			}
+		}
+		return nullptr;
+	}
+
+	std::vector<std::vector<int>> levelData;
+	std::vector<std::vector<DGameObject*>> drawableLevelObjects;
+	std::vector<std::vector<UGameObject*>> updateableLevelObjects;
 	std::string name;
 };
