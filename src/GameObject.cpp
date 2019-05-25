@@ -109,8 +109,14 @@ Vector2D DUGameObject::lineIntersectAABB(GameObject* object, std::vector<Vector2
 	}
 	return collisionPoint;
 }
+
+
+
 Box* DUGameObject::ptr;
 Vector2D* DUGameObject::point;
+
+
+
 void DUGameObject::update(double dt) {
 
 	//add buffer to check lowest distance of ALL objects that player collided with in the frame
@@ -223,14 +229,19 @@ void DUGameObject::update(double dt) {
 				//player would collide, therefore offset position by that amount
 				if ((position.y > object->getPosition().y && position.y < object->getPosition().y + object->getSize().y) || (position.y + size.y > object->getPosition().y && position.y + size.y < object->getPosition().y + object->getSize().y)) {
 					//std::cout << "horizontal collision" << std::endl;
-					collisionXBuffer.push_back(pointOfCollision.x);
-					//position.x = pointOfCollision.x;
-					//position.y = position.y + (newCornerPoints[0].y - pointOfCollision.y);
+					//collisionXBuffer.push_back(pointOfCollision.x);
+					position.x = pointOfCollision.x;
+					position.y = position.y + (newCornerPoints[0].y - pointOfCollision.y);
 				}
-
+				collision = true;
 			}
 		}
 	}
+	if (!collision) {
+		position = position + velocity * dt;
+	}
+	
+	/*
 	double minimumX = 55555555555;
 	double finalX = 0;
 	for (auto pointX : collisionXBuffer) {
@@ -247,9 +258,9 @@ void DUGameObject::update(double dt) {
 	if (cornerBuffer.size() < 1) {
 		position.x = finalX;
 		//std::cout << "moving X" << std::endl;
-	}
+	}*/
 
-
+	/*
 
 	std::vector<double> collisionYBuffer;
 	for (auto& object : GameWorld::drawableObjects) {
@@ -291,7 +302,7 @@ void DUGameObject::update(double dt) {
 	if (cornerBuffer.size() < 2) {
 		position.y = finalY;
 		//std::cout << "moving Y" << std::endl;
-	}
+	}*/
 	std::cout << "Corner buffer: " << cornerBuffer.size() << std::endl;
 	/*
 	if (cornerBuffer.size() == 2) {
