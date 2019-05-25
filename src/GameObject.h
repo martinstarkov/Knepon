@@ -11,9 +11,9 @@ struct Updateable {
 	virtual void update(double dt) = 0;
 };
 
-class Box {
+class Rectangle {
 public:
-	Box(Vector2D aPosition, Vector2D aSize) : position(aPosition), size(aSize) {}
+	Rectangle(Vector2D aPosition, Vector2D aSize) : position(aPosition), size(aSize) {}
 	Vector2D position;
 	Vector2D size;
 };
@@ -74,10 +74,9 @@ class DUGameObject : virtual public DGameObject, virtual public UGameObject {
 public:
 	DUGameObject(std::string aName, Vector2D aPosition, std::string aType, std::string aTexture, Vector2D initSpeed = { 0, 0 }, SDL_RendererFlip aDirection = SDL_FLIP_NONE, Vector2D initVelocity = { 0, 0 });
 	void update(double dt) override;
-	Vector2D DUGameObject::lineIntersectAABB(GameObject* object, std::vector<Vector2D> cornerPoints, std::vector<Vector2D> newCornerPoints);
-	bool collides(GameObject& obj);
-	static Box* ptr;
-	static Vector2D* point;
+	Rectangle* broadPhaseBox(Vector2D newPosition);
+	double DUGameObject::sweepAABB(GameObject box, Vector2D& normal, double dt);
+	bool broadPhaseCheck(Rectangle broadphaseBox, GameObject box);
 	Vector2D getVelocity() {
 		return velocity;
 	}
