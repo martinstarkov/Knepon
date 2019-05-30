@@ -1,11 +1,13 @@
 #include "common.h"
 
-GameObject::GameObject(std::string aName, Vector2D aPosition) : name(aName), position(aPosition) {
+GameObject::GameObject(std::string aName, Vector2D aPosition) : name(aName), position(aPosition), originalPosition(aPosition) {
 }
 
 DGameObject::DGameObject(std::string aName, Vector2D aPosition, std::string aTexture, SDL_RendererFlip aDirection) : texture(aTexture), direction(aDirection), GameObject(aName, aPosition) {
 	TextureManager::load(texture);
-	GameWorld::drawableObjects.push_back(this);
+	if (aName != "player") {
+		GameWorld::drawableObjects.push_back(this);
+	}
 }
 
 UGameObject::UGameObject(std::string aName, Vector2D aPosition, std::string aType) : type(aType), GameObject(aName, aPosition) {
@@ -22,289 +24,164 @@ void DGameObject::draw() {
 void UGameObject::update(double dt) {
 }
 
-bool DUGameObject::collides(GameObject& obj) {
-	if ( (position.x < obj.getPosition().x + obj.getSize().x && position.x + size.x < obj.getPosition().x) || 
-		(position.x > obj.getPosition().x + obj.getSize().x && position.x + size.x > obj.getPosition().x) || 
-		(position.y + size.y < obj.getPosition().y && position.y < obj.getPosition().y + obj.getSize().y) || 
-		(position.y > obj.getPosition().y + obj.getSize().y && position.y + size.y > obj.getPosition().y) ) { 
-		return false;
+Rectangle* DUGameObject::broadPhaseBox(Vector2D newPosition) {
+	Vector2D rectanglePosition;
+	if (velocity.x > 0) {
+		rectanglePosition.x = position.x;
 	} else {
+		rectanglePosition.x = newPosition.x;
+	}
+	if (velocity.y > 0) {
+		rectanglePosition.y = position.y;
+	} else {
+		rectanglePosition.y = newPosition.y;
+	}
+	return new Rectangle(rectanglePosition, +(position - newPosition) + size);
+}
+
+bool DUGameObject::staticAABBCheck(GameObject box) {
+	if ((position.x + size.x > box.getPosition().x && position.x < box.getPosition().x + box.getSize().x) && (position.y + size.y > box.getPosition().y && position.y < box.getPosition().y + box.getSize().y)) {
 		return true;
 	}
+	return false;
 }
 
-Vector2D DUGameObject::lineIntersectAABB(GameObject* object, std::vector<Vector2D> cornerPoints, std::vector<Vector2D> newCornerPoints) {
-	Vector2D collisionPoint = { 0, 0 };
-	int tempPoints = 0;
-	int indexOfCorner = 0;
-	double collisionPointDistance = std::numeric_limits<double>::infinity();
-	for (int i = 0; i < newCornerPoints.size(); i++) {
-		Vector2D newPosition = newCornerPoints[i];
-		Vector2D position = cornerPoints[i];
-		double slope = Vector2D::slope(position, newPosition);
-		double y = 0.0, x = 0.0;
-		std::vector<Vector2D> collidingPoints;
-
-		y = slope * (object->getPosition().x - position.x) + position.y;
-		if (y > object->getPosition().y && y < object->getPosition().y + object->getSize().y) {
-			collidingPoints.push_back({ object->getPosition().x, y });
-		}
-		x = (object->getPosition().y - position.y) / slope + position.x;
-		if (x > object->getPosition().x && x < object->getPosition().x + object->getSize().x) {
-			collidingPoints.push_back({ x, object->getPosition().y });
-		}
-		y = slope * (object->getPosition().x + object->getSize().x - position.x) + position.y;
-		if (y > object->getPosition().y && y < object->getPosition().y + object->getSize().y) {
-			collidingPoints.push_back({ object->getPosition().x + object->getSize().x, y });
-		}
-		x = (object->getPosition().y + object->getSize().y - position.y) / slope + position.x;
-		if (x > object->getPosition().x && x < object->getPosition().x + object->getSize().x) {
-			collidingPoints.push_back({ x, object->getPosition().y + object->getSize().y });
-		}
-		if (collidingPoints.size() > 0) {
-			tempPoints++;
-			double minimumDistance = std::numeric_limits<double>::infinity();
-			Vector2D closestPoint = { 0, 0 };
-			for (auto& point : collidingPoints) {
-				double distance = position.distance(point);
-				if (distance < minimumDistance) {
-					minimumDistance = distance;
-					closestPoint = point;
-				}
-			}
-			double distance = closestPoint.distance(position);
-			if (distance < collisionPointDistance) {
-				collisionPointDistance = distance;
-				collisionPoint = closestPoint;
-				indexOfCorner = i;
-			}
-		}
+bool DUGameObject::broadPhaseCheck(Rectangle bp, GameObject box) {
+	if ((box.getPosition().x + box.getSize().x > bp.position.x && box.getPosition().x < bp.position.x + bp.size.x) && (box.getPosition().y + box.getSize().y > bp.position.y && box.getPosition().y < bp.position.y + bp.size.y)) {
+		return true;
 	}
-	if (tempPoints == 0) {
-		//no collision occured with any of the lines
-		collisionPoint = newCornerPoints[0];
+	return false;
+}
+
+double DUGameObject::sweepAABB(GameObject box, Vector2D& normal, double dt) {
+
+	double xEntryDistance, xExitDistance, yEntryDistance, yExitDistance;
+
+	if (velocity.x > 0) {
+		xEntryDistance = box.getPosition().x - (position.x + size.x);
+		xExitDistance = (box.getPosition().x + box.getSize().x) - position.x;
 	} else {
-		switch (indexOfCorner) {
-			case 0: {
-				collisionPoint = collisionPoint;
-				//std::cout << "Short point was top left" << std::endl;
-				break;
-			}
-			case 1: {
-				collisionPoint = { collisionPoint.x - size.x, collisionPoint.y };
-				//std::cout << "Short point was top right" << std::endl;
-				break;
-			}
-			case 2: {
-				collisionPoint = collisionPoint - size;
-				//std::cout << "Short point was bottom right" << std::endl;
-				break;
-			}
-			case 3: {
-				collisionPoint = { collisionPoint.x, collisionPoint.y - size.y };
-				//std::cout << "Short point was bottom left" << std::endl;
-				break;
-			}
-		}
+		xEntryDistance = (box.getPosition().x + box.getSize().x) - position.x;
+		xExitDistance = box.getPosition().x - (position.x + size.x);
 	}
-	return collisionPoint;
+	if (velocity.y > 0) {
+		yEntryDistance = box.getPosition().y - (position.y + size.y);
+		yExitDistance = (box.getPosition().y + box.getSize().y) - position.y;
+	} else {
+		yEntryDistance = (box.getPosition().y + box.getSize().y) - position.y;
+		yExitDistance = box.getPosition().y - (position.y + size.y);
+	}
+
+	double xEntry, xExit, yEntry, yExit;
+
+	if (velocity.x == 0) {
+		xEntry = -std::numeric_limits<double>::infinity();
+		xExit = std::numeric_limits<double>::infinity();
+	} else {
+		xEntry = xEntryDistance / (velocity.x * dt);
+		xExit = xExitDistance / (velocity.x * dt);
+	}
+
+	if (velocity.y == 0) {
+		yEntry = -std::numeric_limits<double>::infinity();
+		yExit = std::numeric_limits<double>::infinity();
+	} else {
+		yEntry = yEntryDistance / (velocity.y * dt);
+		yExit = yExitDistance / (velocity.y * dt);
+	}
+	
+	// find the earliest/latest times of collision
+	double entryTime = std::max(xEntry, yEntry);
+	double exitTime = std::min(xExit, yExit);
+
+	//no collision
+	if (entryTime > exitTime || xEntry < 0 && yEntry < 0 || xEntry > 1 || yEntry > 1) {
+		normal = { 0, 0 };
+		return 1;
+	} else {
+		if (xEntry > yEntry) {
+			if (xEntryDistance < 0) {
+				normal = { 1, 0 };
+			} else if (xEntryDistance > 0) {
+				normal = { -1, 0 };
+			} else {
+				normal = { 0, 0 };
+			}
+		} else if (xEntry < yEntry) {
+			if (yEntryDistance < 0) {
+				normal = { 0, 1 };
+			} else if (yEntryDistance > 0) {
+				normal = { 0, -1 };
+			} else {
+				normal = { 0, 0 };
+			}
+		} else {
+			normal = { 0, 0 };
+		}
+		return entryTime;
+	}
+
 }
-Box* DUGameObject::ptr;
-Vector2D* DUGameObject::point;
+
+struct CollisionInformation {
+	double time;
+	GameObject object;
+	Vector2D normal;
+};
+
+bool compareCollisionInformation(CollisionInformation i1, CollisionInformation i2) {
+	return (i1.time < i2.time);
+}
+
 void DUGameObject::update(double dt) {
 
-	//add buffer to check lowest distance of ALL objects that player collided with in the frame
-	//give sideways velocity (push) if player velocity * dt isnt equivalent to the distance to newPosition
-
 	bool collision = false;
-	std::vector<Vector2D> collidingPoints;
-	std::vector<Vector2D> cornerPoints;
-	std::vector<Vector2D> newCornerPoints;
+	Vector2D newPosition = position + velocity * dt;
 
-	cornerPoints.push_back(position);
-	cornerPoints.push_back({ position.x + size.x, position.y });
-	cornerPoints.push_back(position + size);
-	cornerPoints.push_back({ position.x, position.y + size.y });
+	Rectangle broadPhaseRectangle = *broadPhaseBox(newPosition);
+	std::vector<CollisionInformation> times;
+	for (auto& object : GameWorld::customObject) {
 
-	for (auto& point : cornerPoints) {
-		newCornerPoints.push_back(point + velocity * dt);
-	}
+		if (staticAABBCheck(*object)) {
 
-	//GameObject* object = GameWorld::customObject[0];
-	ptr = new Box({ 0, 0 }, { abs(newCornerPoints[0].x + size.x - position.x), abs(newCornerPoints[0].y + size.y - position.y) });
-
-	//draw square
-	if (velocity.x < 0) {
-		ptr->position.x = newCornerPoints[0].x;
-	} else {
-		ptr->position.x = position.x;
-	}
-	if (velocity.y < 0) {
-		ptr->position.y = newCornerPoints[0].y;
-	} else {
-		ptr->position.y = position.y;
-	}
-	/*
-	//atm, a bug exists where if player is exactly lined up on y axis with object, then it can go through (no collision is detected because < and > but not =)
-	std::vector<double> collisionXBuffer;
-	std::vector<double> collisionYBuffer;
-	collisionXBuffer.clear();
-	collisionYBuffer.clear();
-	for (auto& object : GameWorld::drawableObjects) {
-		//check if object is inside square
-		if (((object->getPosition().x < ptr->position.x + ptr->size.x && object->getPosition().x + object->getSize().x > ptr->position.x) || (object->getPosition().x + object->getSize().x > ptr->position.x && object->getPosition().x < ptr->position.x + ptr->size.x) || (object->getPosition().x == ptr->position.x && object->getPosition().x + object->getSize().x == ptr->position.x + ptr->size.x)) && ((object->getPosition().y < ptr->position.y + ptr->size.y && object->getPosition().y + object->getSize().y > ptr->position.y) || (object->getPosition().y + object->getSize().y > ptr->position.y && object->getPosition().y < ptr->position.y + ptr->size.y))) {
-			//find best point of collision
-			Vector2D pointOfCollision = lineIntersectAABB(object, cornerPoints, newCornerPoints);
-			if (pointOfCollision.x == newCornerPoints[0].x && pointOfCollision.y == newCornerPoints[0].y) {
-				//player didnt move
-				//position = newCornerPoints[0];
-			} else {
-				//player would collide, therefore offset position by that amount
-				std::cout << "Collision with: " << object->getName() << ", Position: " << position.toString() << ", Dirt Position: " << object->getPosition().toString() << std::endl;
-				if ((position.y > object->getPosition().y && position.y < object->getPosition().y + object->getSize().y) || (position.y + size.y > object->getPosition().y && position.y + size.y < object->getPosition().y + object->getSize().y)) {
-					//std::cout << "horizontal collision" << std::endl;
-					collisionXBuffer.push_back(pointOfCollision.x);
-					//position.x = pointOfCollision.x;
-					//position.y = position.y + (newCornerPoints[0].y - pointOfCollision.y);
-				}
-				if ((position.x > object->getPosition().x && position.x < object->getPosition().x + object->getSize().x) || (position.x + size.x > object->getPosition().x && position.x + size.x < object->getPosition().x + object->getSize().x)) {
-					//std::cout << "vertical collision" << std::endl;
-					collisionYBuffer.push_back(pointOfCollision.y);
-					//position.y = pointOfCollision.y;
-					//position.x = position.x + (newCornerPoints[0].x - pointOfCollision.x);
-				}
-
-				collision = true;
-			}
 		}
-	}
-	double minimumX = 555555555555;
-	double finalX = 0;
-	for (auto pointX : collisionXBuffer) {
-		if (abs(pointX - position.x) < minimumX) {
-			minimumX = abs(pointX - position.x);
-			finalX = pointX;
-		}
-	}
-	double minimumY = 555555555555;
-	double finalY = 0;
-	for (auto pointY : collisionYBuffer) {
-		if (abs(pointY - position.y) < minimumY) {
-			minimumY = abs(pointY - position.y);
-			finalY = pointY;
-		}
-	}
-	Vector2D finalPos = { finalX, finalY };
-	if (finalX == 0) {
-		finalPos.x = position.x + velocity.x * dt;
-	}
-	if (finalY == 0) {
-		finalPos.y = position.y + velocity.y * dt;
-	}
-	std::cout << "Final Coordinates : " << finalPos.x << "," << finalPos.y << std::endl;
-	position = finalPos;
 
-	*/
+		if (broadPhaseCheck(broadPhaseRectangle, *object)) {
 
-	std::vector<double> collisionXBuffer;
-	std::vector<GameObject*> cornerBuffer;
-	for (auto& object : GameWorld::drawableObjects) {
-		//check if object is inside square
-		if (((object->getPosition().x < ptr->position.x + ptr->size.x && object->getPosition().x + object->getSize().x > ptr->position.x) || (object->getPosition().x + object->getSize().x > ptr->position.x && object->getPosition().x < ptr->position.x + ptr->size.x) || (object->getPosition().x == ptr->position.x && object->getPosition().x + object->getSize().x == ptr->position.x + ptr->size.x)) && ((object->getPosition().y < ptr->position.y + ptr->size.y && object->getPosition().y + object->getSize().y > ptr->position.y) || (object->getPosition().y + object->getSize().y > ptr->position.y && object->getPosition().y < ptr->position.y + ptr->size.y))) {
-			//find best point of collision
-			Vector2D pointOfCollision = lineIntersectAABB(object, cornerPoints, newCornerPoints);
+			Vector2D normal;
+			double collisionTime = sweepAABB(*object, normal, dt);
 			
-			if (pointOfCollision.x == newCornerPoints[0].x) {
-				//player didnt move
-				//cornerBuffer.push_back(object);
-				//position = newCornerPoints[0];
-			} else {
-				//std::cout << object->getName() << " inside movement square" << std::endl;
-				//player would collide, therefore offset position by that amount
-				if ((position.y > object->getPosition().y && position.y < object->getPosition().y + object->getSize().y) || (position.y + size.y > object->getPosition().y && position.y + size.y < object->getPosition().y + object->getSize().y)) {
-					//std::cout << "horizontal collision" << std::endl;
-					collisionXBuffer.push_back(pointOfCollision.x);
-					//position.x = pointOfCollision.x;
-					//position.y = position.y + (newCornerPoints[0].y - pointOfCollision.y);
-				}
+			times.push_back({ collisionTime, *object, normal });
+			double remainingTime = 1.0 - collisionTime;
 
+			if (collisionTime < 1) {
+
+				//double dotprod = (velocity.x * normal.y + velocity.y * normal.x) * remainingTime;
+				//velocity.x = dotprod * normal.y;
+				//velocity.y = dotprod * normal.x;
+				//position = position + velocity * dt * remainingTime;
+				collision = true;
+				
 			}
 		}
+
 	}
-	double minimumX = 55555555555;
-	double finalX = 0;
-	for (auto pointX : collisionXBuffer) {
-		if (abs(pointX - position.x) < minimumX) {
-			minimumX = abs(pointX - position.x);
-			finalX = pointX;
+	
+	if (!collision) {
+		position = position + velocity * dt;
+	} else {
+		CollisionInformation info = *std::min_element(times.begin(), times.end(), compareCollisionInformation);
+		double collisionTime = info.time;
+		Vector2D normal = info.normal;
+		position = position + velocity * dt * collisionTime;
+		double remainingTime = 1.0 - collisionTime;
+		if (collisionTime < 1) {
+			std::cout << "normal : " << normal.toString() << std::endl;
+			double dotprod = (velocity.x * normal.y + velocity.y * normal.x) * remainingTime;
+			velocity.x = dotprod * normal.y;
+			velocity.y = dotprod * normal.x;
+			position = position + velocity * dt * remainingTime;
+
 		}
 	}
-	if (finalX == 0) {
-		finalX = position.x + velocity.x * dt;
-	} else {
-		//std::cout << "Resolved X collision" << std::endl;
-	}
-	if (cornerBuffer.size() < 1) {
-		position.x = finalX;
-		//std::cout << "moving X" << std::endl;
-	}
-
-
-
-	std::vector<double> collisionYBuffer;
-	for (auto& object : GameWorld::drawableObjects) {
-		//check if object is inside square
-		if (((object->getPosition().x < ptr->position.x + ptr->size.x && object->getPosition().x + object->getSize().x > ptr->position.x) || (object->getPosition().x + object->getSize().x > ptr->position.x && object->getPosition().x < ptr->position.x + ptr->size.x) || (object->getPosition().x == ptr->position.x && object->getPosition().x + object->getSize().x == ptr->position.x + ptr->size.x)) && ((object->getPosition().y < ptr->position.y + ptr->size.y && object->getPosition().y + object->getSize().y > ptr->position.y) || (object->getPosition().y + object->getSize().y > ptr->position.y && object->getPosition().y < ptr->position.y + ptr->size.y))) {
-			//find best point of collision
-			Vector2D pointOfCollision = lineIntersectAABB(object, cornerPoints, newCornerPoints);
-			if (pointOfCollision.y == newCornerPoints[0].y) {
-				//player didnt move
-				//position = newCornerPoints[0];
-				//cornerBuffer.push_back(object);
-			} else {
-				//player would collide, therefore offset position by that amount
-
-				if ((position.x > object->getPosition().x && position.x < object->getPosition().x + object->getSize().x) || (position.x + size.x > object->getPosition().x && position.x + size.x < object->getPosition().x + object->getSize().x)) {
-					//std::cout << "vertical collision" << std::endl;
-					collisionYBuffer.push_back(pointOfCollision.y);
-					//position.y = pointOfCollision.y;
-					//position.x = position.x + (newCornerPoints[0].x - pointOfCollision.x);
-				}
-
-			}
-		}
-	}
-
-	double minimumY = 55555555555;
-	double finalY = 0;
-	for (auto pointY : collisionYBuffer) {
-		if (abs(pointY - position.y) < minimumY) {
-			minimumY = abs(pointY - position.y);
-			finalY = pointY;
-		}
-	}
-	if (finalY == 0 && cornerBuffer.size() < 2) {
-		finalY = position.y + velocity.y * dt;
-	} else {
-		//std::cout << "Resolved Y collision" << std::endl;
-	}
-	if (cornerBuffer.size() < 2) {
-		position.y = finalY;
-		//std::cout << "moving Y" << std::endl;
-	}
-	std::cout << "Corner buffer: " << cornerBuffer.size() << std::endl;
-	/*
-	if (cornerBuffer.size() == 2) {
-		Vector2D point1 = cornerBuffer[0];
-		position = cornerBuffer[0] - velocity * dt;
-			//position  + velocity * dt - +(position - cornerBuffer[0]);
-		DUGameObject::point = &point1;
-		std::cout << "Corner Buffer Size: " << cornerBuffer.size() << std::endl;
-	} else if (cornerBuffer.size() == 3) {
-		
-	} else {
-		Vector2D point1 = { 200, 200 };
-		DUGameObject::point = &point1;
-	}
-	*/
 }

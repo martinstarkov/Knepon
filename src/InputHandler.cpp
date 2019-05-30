@@ -21,7 +21,7 @@ void InputHandler::inputKeyStates(const Uint8* states) {
 	}
 	//reset position
 	if (states[SDL_SCANCODE_R]) {
-		Player::getInstance()->setPosition({ 200, 200 });
+		Player::getInstance()->setPosition(Player::getInstance()->getOriginalPosition());
 	}
 }
 

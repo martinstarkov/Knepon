@@ -11,6 +11,16 @@ Player* player;
 DGameObject* myobj1;
 DGameObject* myobj2;
 DGameObject* myobj3;
+DGameObject* myobj4;
+DGameObject* myobj5;
+DGameObject* myobj6;
+DGameObject* myobj7;
+DGameObject* myobj8;
+DGameObject* myobj9;
+DGameObject* myobj10;
+DGameObject* myobj11;
+DGameObject* myobj12;
+DGameObject* myobj13;
 
 /*
 bool ShapeOverlap_SAT_STATIC(Polygon& r1, Polygon& r2) {
@@ -92,12 +102,37 @@ bool Game::init(const char* title, int xpos, int ypos, int width, int height, in
 	std::cout << "Complete initialization successful" << std::endl;
 	running = true;
 
-	myobj1 = new DGameObject("top dirt", { 250, 250 }, "resources/dirt.png");
-	myobj2 = new DGameObject("corner dirt", { 250, 266 }, "resources/dirt.png");
-	myobj3 = new DGameObject("bottom dirt", { 234, 266 }, "resources/dirt.png");
+	myobj1 = new DGameObject("1x dirt", { 264, 248 }, "resources/dirt.png");
+	myobj2 = new DGameObject("2x dirt", { 280, 248 }, "resources/dirt.png");
+	myobj3 = new DGameObject("3x dirt", { 296, 248 }, "resources/dirt.png");
+
+	myobj4 = new DGameObject("-1x dirt", { 232, 248 }, "resources/dirt.png");
+	myobj5 = new DGameObject("-2x dirt", { 216, 248 }, "resources/dirt.png");
+	myobj6 = new DGameObject("-3x dirt", { 200, 248 }, "resources/dirt.png");
+
+	myobj7 = new DGameObject("0 dirt", { 248, 248 }, "resources/dirt.png");
+
+	myobj8 = new DGameObject("1y dirt", { 248, 264 }, "resources/dirt.png");
+	myobj9 = new DGameObject("2y dirt", { 248, 280 }, "resources/dirt.png");
+	myobj10 = new DGameObject("3y dirt", { 248, 296 }, "resources/dirt.png");
+
+	myobj11 = new DGameObject("-1y dirt", { 248, 232 }, "resources/dirt.png");
+	myobj12 = new DGameObject("-2y dirt", { 248, 216 }, "resources/dirt.png");
+	myobj13 = new DGameObject("-3y dirt", { 248, 200 }, "resources/dirt.png");
+
 	GameWorld::customObject.push_back(myobj1);
 	GameWorld::customObject.push_back(myobj2);
 	GameWorld::customObject.push_back(myobj3);
+	GameWorld::customObject.push_back(myobj4);
+	GameWorld::customObject.push_back(myobj5);
+	GameWorld::customObject.push_back(myobj6);
+	GameWorld::customObject.push_back(myobj7);
+	GameWorld::customObject.push_back(myobj8);
+	GameWorld::customObject.push_back(myobj9);
+	GameWorld::customObject.push_back(myobj10);
+	GameWorld::customObject.push_back(myobj11);
+	GameWorld::customObject.push_back(myobj12);
+	GameWorld::customObject.push_back(myobj13);
 
 	player = Player::getInstance();
 
@@ -117,33 +152,23 @@ void Game::update(double dt) {
 void Game::render() {
 	SDL_RenderClear(renderer);
 
-
-	SDL_SetRenderDrawColor(renderer, 255, 0, 255, 255);
-	SDL_Rect rect = { (int)floor(DUGameObject::ptr->position.x), (int)floor(DUGameObject::ptr->position.y), (int)floor(DUGameObject::ptr->size.x), (int)floor(DUGameObject::ptr->size.y) };
-	SDL_RenderDrawRect(renderer, &rect);
-
-	//SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
-	//SDL_RenderDrawPoint(renderer, int(DUGameObject::point->x), int(DUGameObject::point->y));
-
-	
-
 	player->draw();
 	myobj1->draw();
 	myobj2->draw();
 	myobj3->draw();
+	myobj4->draw();
+	myobj5->draw();
+	myobj6->draw();
+	myobj7->draw();
+	myobj8->draw();
+	myobj9->draw();
+	myobj10->draw();
+	myobj11->draw();
+	myobj12->draw();
+	myobj13->draw();
 
 	GameWorld::getCurrentLevel()->drawLevel();
-	/*
-	for (auto object : Player::getInstance()->collideableObjects) {
-		if (object->getOverlap()) {
-			SDL_SetRenderDrawColor(Game::getRenderer(), 0, 255, 0, 255);
-		} else {
-			SDL_SetRenderDrawColor(Game::getRenderer(), 255, 0, 0, 255);
-		}
-		SDL_Rect rect = { int(object->getPosition().x), int(object->getPosition().y), int(object->getSize().x), int(object->getSize().y) };
-		SDL_RenderDrawRect(renderer, &rect);
-	}
-	*/
+
 	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 	SDL_RenderPresent(renderer);
 }

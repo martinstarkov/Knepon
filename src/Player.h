@@ -9,12 +9,11 @@ public:
 	~Player();
 	static Player* getInstance() {
 		if (instance == 0) {
-			instance = new Player("player", { 200, 200 }, "player", "resources/squirrel_resting.png", { 120, 120 });
+			instance = new Player("player", { 140, 216 }, "player", "resources/squirrel_resting.png", { 120, 120 });
 		}
 		return instance;
 	}
 	void update(double dt) override;
-	void updateCollisionsRadius();
 	void move(MovementDirections movementDirection);
 	void stop(Axis axis);
 	std::vector<Vector2D> collisionRadius;
