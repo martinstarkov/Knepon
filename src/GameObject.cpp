@@ -5,9 +5,7 @@ GameObject::GameObject(std::string aName, Vector2D aPosition) : name(aName), pos
 
 DGameObject::DGameObject(std::string aName, Vector2D aPosition, std::string aTexture, SDL_RendererFlip aDirection) : texture(aTexture), direction(aDirection), GameObject(aName, aPosition) {
 	TextureManager::load(texture);
-	if (this->getName() != "player") {
-		GameWorld::drawableObjects.push_back(this);
-	}
+	GameWorld::drawableObjects.push_back(this);
 }
 
 UGameObject::UGameObject(std::string aName, Vector2D aPosition, std::string aType) : type(aType), GameObject(aName, aPosition) {
@@ -24,18 +22,23 @@ void DGameObject::draw() {
 void UGameObject::update(double dt) {
 }
 
-Rectangle DUGameObject::broadPhaseBox(double dt) {
-	Rectangle broadphasebox;
-	broadphasebox.position.x = velocity.x * dt > 0 ? position.x : position.x + velocity.x * dt;
-	broadphasebox.position.y = velocity.y * dt > 0 ? position.y : position.y + velocity.y * dt;
-	broadphasebox.size.x = velocity.x * dt > 0 ? velocity.x * dt + size.x : size.x - velocity.x * dt;
-	broadphasebox.size.y = velocity.y * dt> 0 ? velocity.y * dt + size.y : size.y - velocity.y * dt;
-
-	return broadphasebox;
+Rectangle* DUGameObject::broadPhaseBox(Vector2D newPosition) {
+	Vector2D rectanglePosition;
+	if (velocity.x > 0) {
+		rectanglePosition.x = position.x;
+	} else {
+		rectanglePosition.x = newPosition.x;
+	}
+	if (velocity.y > 0) {
+		rectanglePosition.y = position.y;
+	} else {
+		rectanglePosition.y = newPosition.y;
+	}
+	return new Rectangle(rectanglePosition, +(position - newPosition) + size);
 }
 
-bool DUGameObject::broadPhaseCheck(Rectangle bp, GameObject box) {
-	if ((bp.position.x + bp.size.x > box.getPosition().x && bp.position.x < box.getPosition().x + box.getSize().x) && (bp.position.y + bp.size.y > box.getPosition().y && bp.position.y < box.getPosition().y + box.getSize().y)) {
+bool DUGameObject::broadPhaseCheck(Rectangle bPB, GameObject box) {
+	if (((box.getPosition().x < bPB.position.x + bPB.size.x && box.getPosition().x > bPB.position.x) || (box.getPosition().x + box.getSize().x > bPB.position.x && box.getPosition().x + box.getSize().x < bPB.position.x + bPB.size.x)) && ((box.getPosition().y < bPB.position.y + bPB.size.y && box.getPosition().y > bPB.position.y) || (box.getPosition().y + box.getSize().y > bPB.position.y && box.getPosition().y + box.getSize().y < bPB.position.y + bPB.size.y))) {
 		return true;
 	}
 	return false;
@@ -104,101 +107,30 @@ double DUGameObject::sweepAABB(GameObject box, Vector2D& normal, double dt) {
 	}
 
 }
-struct CollisionInformation {
-	double time;
-	Vector2D normal;
-	GameObject object;
-	int id;
-};
-
-bool DUGameObject::aabbCollisionCheck(GameObject object) {
-	if ((position.x + size.x > object.getPosition().x && position.x < object.getPosition().x + object.getSize().x) && (position.y + size.y > object.getPosition().y && position.y < object.getPosition().y + object.getSize().y)) {
-		return true;
-	}
-	return false;
-}
-
-bool compareCollisionTime(CollisionInformation i1, CollisionInformation i2) {
-	return (i1.time < i2.time);
-}
 
 void DUGameObject::update(double dt) {
 
-	//GameObject object = *GameWorld::customObject[0];
-	Rectangle bpBox = broadPhaseBox(dt);
-	std::vector<CollisionInformation> collisions;
-	for (auto& object : GameWorld::drawableObjects) {
-		if (broadPhaseCheck(bpBox, *object)) {
+	Vector2D newPosition = position + velocity * dt;
 
-			if (aabbCollisionCheck(*object)) {
-				//resolve
-				std::cout << "ALREADY COLLIDING!!! " << object->getName() << std::endl;
+	Rectangle broadPhaseRectangle = *broadPhaseBox(newPosition);
+	GameObject object = *GameWorld::customObject[0];
 
-			} else {
-				Vector2D normal;
-				double collisionTime = sweepAABB(*object, normal, dt);
-				//std::cout << "Collision time: " << collisionTime << std::endl;
-				//position = position + velocity * dt * collisionTime;
-				double remainingTime = 1.0 - collisionTime;
-				if (collisionTime < 1) {
-					std::cout << "WOULD COLLIDE!!!" << std::endl;
-					collisions.push_back({ collisionTime, normal, *object, int(collisions.size()) });
-					
-					double dotprod = (velocity.x * normal.y + velocity.y * normal.x) * remainingTime;
-					velocity.x = dotprod * normal.y;
-					velocity.y = dotprod * normal.x;
-					position = position + velocity * dt * remainingTime;
-					
-				}
-			}
-		}
-	}
-				/*
-		else {
-			position = position + velocity * dt;
-		}
-		*/
-	//position = position + velocity * dt;
+	if (broadPhaseCheck(broadPhaseRectangle, object)) {
 
-	if (collisions.size() > 0) {
+		Vector2D normal;
+		double collisionTime = sweepAABB(object, normal, dt);
 		
-		std::sort(collisions.begin(), collisions.end(), compareCollisionTime);
+		position = position + velocity * dt * collisionTime;
 
-		//std::cout << "Collision occured: " << collisions.size() << std::endl;
-		position = position + velocity * dt * collisions[0].time;
+		double remainingTime = 1.0 - collisionTime;
 
-		//timeXCollision = (player.left - wall.right) / -player.velocity.x
-		//timeYCollision = (wall.bottom - player.top) / player.velocity.y
-
-		//double remainingTime = 1.0 - collisions[0].time;
-
-		//double dotprod = (velocity.x * collisions[0].normal.y + velocity.y * collisions[0].normal.x) * remainingTime;
-		//velocity.x = dotprod * collisions[0].normal.y;
-		//velocity.y = dotprod * collisions[0].normal.x;
-		//THE SLIDING IS WHAT CAUSES THE TUNNELING THROUGH CORNERS!!!
-
-		//position = position + velocity * dt * remainingTime;
-		//Rectangle remainingBroadPhaseRectangle = broadPhaseBox(dt);
-		
-		collisions.erase(collisions.begin());
-		for (auto& information : collisions) {
-			if (aabbCollisionCheck(information.object)) {
-				Vector2D collisionDepth = { 0, 0 };
-				if (information.normal.x == 1) {
-					collisionDepth = { information.object.getPosition().x + information.object.getSize().x - position.x, 0 };
-				} else if (information.normal.x == -1) {
-					collisionDepth = { information.object.getPosition().x - (position.x + size.x), 0 };
-				} else if (information.normal.y == 1) {
-					collisionDepth = { 0, information.object.getPosition().y + information.object.getSize().y - position.y };
-				} else if (information.normal.y == -1) {
-					collisionDepth = { 0, information.object.getPosition().y - (position.y + size.y) };
-				}
-				if (collisionDepth.x != 0 || collisionDepth.y != 0) {
-					position = position + collisionDepth;
-				}
-			}
+		if (collisionTime < 1) {
+			double dotprod = (velocity.x * normal.y + velocity.y * normal.x) * remainingTime;
+			velocity.x = dotprod * normal.y;
+			velocity.y = dotprod * normal.x;
+			position = position + velocity * dt * remainingTime;
 		}
-		
+
 	} else {
 		position = position + velocity * dt;
 	}
