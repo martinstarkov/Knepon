@@ -14,6 +14,7 @@ public:
 		return instance;
 	}
 	void update(double dt) override;
+	void updateCollisionsRadius();
 	void move(MovementDirections movementDirection);
 	void stop(Axis axis);
 	std::vector<Vector2D> collisionRadius;
