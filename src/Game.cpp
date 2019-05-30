@@ -93,7 +93,11 @@ bool Game::init(const char* title, int xpos, int ypos, int width, int height, in
 	running = true;
 
 	myobj1 = new DGameObject("top dirt", { 250, 250 }, "resources/dirt.png");
+	myobj2 = new DGameObject("corner dirt", { 250, 266 }, "resources/dirt.png");
+	myobj3 = new DGameObject("bottom dirt", { 234, 266 }, "resources/dirt.png");
 	GameWorld::customObject.push_back(myobj1);
+	GameWorld::customObject.push_back(myobj2);
+	GameWorld::customObject.push_back(myobj3);
 
 	player = Player::getInstance();
 
@@ -121,6 +125,8 @@ void Game::render() {
 
 	player->draw();
 	myobj1->draw();
+	myobj2->draw();
+	myobj3->draw();
 
 	GameWorld::getCurrentLevel()->drawLevel();
 	/*
