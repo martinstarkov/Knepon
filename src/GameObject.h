@@ -88,6 +88,8 @@ public:
 		return velocity;
 	}
 	~DUGameObject() {}
+	bool jumping = false;
+	bool onGround = false;
 protected:
 	Vector2D velocity = { 0, 0 };
 	Vector2D speed = { 0, 0 };

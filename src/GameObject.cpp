@@ -74,16 +74,23 @@ bool DUGameObject::broadPhaseCheck(Rectangle bp, GameObject box) {
 	return false;
 }
 
-struct CollisionInformation {
-	GameObject object;
-	Vector2D pVector;
-};
-
 void DUGameObject::update(double dt) {
+
+	Vector2D newPosition = position + velocity * dt;
+
+	Rectangle bpb = createBroadPhaseBox(newPosition);
+
+	std::vector<GameObject*> potentialColliders;
+
+	for (auto& box : GameWorld::drawableObjects) {
+		if (broadPhaseCheck(bpb, *box)) {
+			potentialColliders.push_back(box);
+		}
+	}
 
 	position.x = position.x + velocity.x * dt;
 
-	for(auto& box : GameWorld::customObject) {
+	for(auto& box : potentialColliders) {
 
 		Rectangle rect = getMinkowskiDifference(*box);
 		mBox = { (int)rect.position.x, (int)rect.position.y, (int)rect.size.x, (int)rect.size.y };
@@ -91,23 +98,39 @@ void DUGameObject::update(double dt) {
 			colliding = true;
 			Vector2D penetrationVector = rect.getPVector();
 			position.x = position.x - penetrationVector.x;
-			std::cout << "Colliding" << std::endl;
 		}
 
 	}
 
 	position.y = position.y + velocity.y * dt;
-
-	for (auto& box : GameWorld::customObject) {
+	std::vector<Vector2D> yCollisions;
+	for (auto& box : potentialColliders) {
 
 		Rectangle rect = getMinkowskiDifference(*box);
 		mBox = { (int)rect.position.x, (int)rect.position.y, (int)rect.size.x, (int)rect.size.y };
 		if (rect.position.x <= 0 && rect.position.x + rect.size.x >= 0 && rect.position.y <= 0 && rect.position.y + rect.size.y >= 0) {
 			colliding = true;
 			Vector2D penetrationVector = rect.getPVector();
+			yCollisions.push_back(penetrationVector);
 			position.y = position.y - penetrationVector.y;
-			std::cout << "Colliding" << std::endl;
 		}
 
 	}
+
+	onGround = false;
+
+	if (yCollisions.size() > 0) {
+		for (auto& pV : yCollisions) {
+			if (pV.y > 0) {
+				//std::cout << "Colliding with ground" << std::endl;
+				onGround = true;
+				jumping = false;
+				std::cout << "Hit the ground!" << std::endl;
+				break;
+			}
+		}
+	}
+
+	std::cout << "Velocity: " << velocity.toString() << ", onGround: " << onGround << ", jumping: " << jumping << std::endl;
+
 }

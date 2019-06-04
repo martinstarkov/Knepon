@@ -9,7 +9,7 @@ public:
 	~Player();
 	static Player* getInstance() {
 		if (instance == 0) {
-			instance = new Player("player", { 140, 250 }, "player", "resources/squirrel_resting.png", { 150, 150 });
+			instance = new Player("player", { 140, 250 }, "player", "resources/squirrel_resting.png", { 150, 600 });
 		}
 		return instance;
 	}
@@ -19,7 +19,7 @@ public:
 	std::vector<Vector2D> collisionRadius;
 	static std::vector<GameObject*> collideableObjects;
 
-	bool jumping = false;
+	double gravity = 400;
 private:
 	static Player* instance;
 };

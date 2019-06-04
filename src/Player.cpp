@@ -7,6 +7,7 @@ Player::Player(std::string aName, Vector2D aPosition, std::string aType, std::st
 }
 
 void Player::update(double dt) {
+	velocity.y = velocity.y + gravity;
 	DUGameObject::update(dt);
 }
 
