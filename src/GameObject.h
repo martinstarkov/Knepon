@@ -14,6 +14,7 @@ struct Updateable {
 class Rectangle {
 public:
 	Rectangle(Vector2D aPosition, Vector2D aSize) : position(aPosition), size(aSize) {}
+	Vector2D getPVector();
 	Vector2D position;
 	Vector2D size;
 };
@@ -50,8 +51,8 @@ protected:
 	Vector2D size = { double(TILE_WIDTH), double(TILE_HEIGHT) };
 	std::string name = "object";
 	bool overlap = false;
-	Vector2D position = { 0, 0 };
-	Vector2D originalPosition = position;
+	Vector2D position;
+	Vector2D originalPosition;
 	Vector2D tilePosition = { 0, 0 };
 };
 
@@ -79,8 +80,9 @@ public:
 	DUGameObject(std::string aName, Vector2D aPosition, std::string aType, std::string aTexture, Vector2D initSpeed = { 0, 0 }, SDL_RendererFlip aDirection = SDL_FLIP_NONE, Vector2D initVelocity = { 0, 0 });
 	void update(double dt) override;
 	bool staticAABBCheck(GameObject box);
-	Rectangle* broadPhaseBox(Vector2D newPosition);
-	double sweepAABB(GameObject box, Vector2D& normal, double dt);
+	static SDL_Rect mBox;
+	Rectangle getMinkowskiDifference(GameObject box);
+	Rectangle createBroadPhaseBox(Vector2D newPosition);
 	bool broadPhaseCheck(Rectangle broadphaseBox, GameObject box);
 	Vector2D getVelocity() {
 		return velocity;
@@ -89,4 +91,5 @@ public:
 protected:
 	Vector2D velocity = { 0, 0 };
 	Vector2D speed = { 0, 0 };
+	bool colliding = false;
 };

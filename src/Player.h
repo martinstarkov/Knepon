@@ -9,7 +9,7 @@ public:
 	~Player();
 	static Player* getInstance() {
 		if (instance == 0) {
-			instance = new Player("player", { 140, 216 }, "player", "resources/squirrel_resting.png", { 120, 120 });
+			instance = new Player("player", { 140, 250 }, "player", "resources/squirrel_resting.png", { 150, 150 });
 		}
 		return instance;
 	}
@@ -20,9 +20,6 @@ public:
 	static std::vector<GameObject*> collideableObjects;
 
 	bool jumping = false;
-	//std::vector<Vector2D> collidingGrid;
-	//std::vector<Vector2D> xCollidingGrid;
-	//std::vector<Vector2D> yCollidingGrid;
 private:
 	static Player* instance;
 };
