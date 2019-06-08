@@ -25,6 +25,7 @@ public:
 	void render();
 	void clean();
 	void quit();
+	static SDL_Rect camera;
 private:
 	static Game* instance;
 	static bool running;

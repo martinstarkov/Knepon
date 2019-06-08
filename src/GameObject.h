@@ -80,12 +80,14 @@ public:
 	DUGameObject(std::string aName, Vector2D aPosition, std::string aType, std::string aTexture, Vector2D initSpeed = { 0, 0 }, SDL_RendererFlip aDirection = SDL_FLIP_NONE, Vector2D initVelocity = { 0, 0 });
 	void update(double dt) override;
 	bool staticAABBCheck(GameObject box);
-	static SDL_Rect mBox;
 	Rectangle getMinkowskiDifference(GameObject box);
 	Rectangle createBroadPhaseBox(Vector2D newPosition);
 	bool broadPhaseCheck(Rectangle broadphaseBox, GameObject box);
 	Vector2D getVelocity() {
 		return velocity;
+	}
+	void setVelocity(Vector2D newVelocity) {
+		velocity = newVelocity;
 	}
 	~DUGameObject() {}
 	bool jumping = false;

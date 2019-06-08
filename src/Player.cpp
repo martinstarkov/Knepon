@@ -7,17 +7,22 @@ Player::Player(std::string aName, Vector2D aPosition, std::string aType, std::st
 }
 
 void Player::update(double dt) {
-	velocity.y = velocity.y + gravity;
+	if (!onGround) {
+		velocity.y += (gravity * pow(dt, 2)) / 2;
+	}
 	DUGameObject::update(dt);
 }
 
 void Player::move(MovementDirections movementDirection) {
 	switch (movementDirection) {
 		case UP:
-			velocity.y = -1 * speed.y;
+			if (!jumping) {
+				jumping = true;
+				velocity.y = -1 * speed.y;
+			}
 			break;
 		case DOWN:
-			velocity.y = 1 * speed.y;
+			//velocity.y = 1 * speed.y;
 			break;
 		case LEFT:
 			direction = SDL_FLIP_NONE;
@@ -34,7 +39,7 @@ void Player::stop(Axis axis) {
 	if (axis == X) {
 		velocity.x = 0;
 	} else if (axis == Y) {
-		velocity.y = 0;
+		//velocity.y = 0;
 	}
 }
 /*

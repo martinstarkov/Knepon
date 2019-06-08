@@ -18,7 +18,7 @@ DUGameObject::DUGameObject(std::string aName, Vector2D aPosition, std::string aT
 }
 
 void DGameObject::draw() {
-	TextureManager::draw(texture, { (int)floor(position.x), (int)floor(position.y), 16, 16 }, direction);
+	TextureManager::draw(texture, { (int)floor(position.x) - Game::getInstance()->camera.x, (int)floor(position.y) - Game::getInstance()->camera.y, 16, 16 }, direction);
 }
 
 void UGameObject::update(double dt) {
@@ -37,8 +37,6 @@ bool DUGameObject::staticAABBCheck(GameObject box) {
 	}
 	return false;
 }
-
-SDL_Rect DUGameObject::mBox;
 
 Rectangle DUGameObject::getMinkowskiDifference(GameObject box) {
 	Vector2D mPosition, mSize;
@@ -82,9 +80,13 @@ void DUGameObject::update(double dt) {
 
 	std::vector<GameObject*> potentialColliders;
 
-	for (auto& box : GameWorld::drawableObjects) {
-		if (broadPhaseCheck(bpb, *box)) {
-			potentialColliders.push_back(box);
+	for (auto& row : GameWorld::getCurrentLevel()->drawableLevelObjects) {
+		for (auto& box : row) {
+			if (box != nullptr) {
+				if (broadPhaseCheck(bpb, *box)) {
+					potentialColliders.push_back(box);
+				}
+			}
 		}
 	}
 
@@ -93,44 +95,53 @@ void DUGameObject::update(double dt) {
 	for(auto& box : potentialColliders) {
 
 		Rectangle rect = getMinkowskiDifference(*box);
-		mBox = { (int)rect.position.x, (int)rect.position.y, (int)rect.size.x, (int)rect.size.y };
+
 		if (rect.position.x <= 0 && rect.position.x + rect.size.x >= 0 && rect.position.y <= 0 && rect.position.y + rect.size.y >= 0) {
-			colliding = true;
+
 			Vector2D penetrationVector = rect.getPVector();
+
 			position.x = position.x - penetrationVector.x;
+
 		}
 
 	}
 
 	position.y = position.y + velocity.y * dt;
+
 	std::vector<Vector2D> yCollisions;
+
 	for (auto& box : potentialColliders) {
 
 		Rectangle rect = getMinkowskiDifference(*box);
-		mBox = { (int)rect.position.x, (int)rect.position.y, (int)rect.size.x, (int)rect.size.y };
+
 		if (rect.position.x <= 0 && rect.position.x + rect.size.x >= 0 && rect.position.y <= 0 && rect.position.y + rect.size.y >= 0) {
-			colliding = true;
+
 			Vector2D penetrationVector = rect.getPVector();
+
 			yCollisions.push_back(penetrationVector);
+
 			position.y = position.y - penetrationVector.y;
 		}
 
 	}
-
 	onGround = false;
-
-	if (yCollisions.size() > 0) {
-		for (auto& pV : yCollisions) {
-			if (pV.y > 0) {
-				//std::cout << "Colliding with ground" << std::endl;
-				onGround = true;
-				jumping = false;
-				std::cout << "Hit the ground!" << std::endl;
-				break;
+	if (velocity.y != 0) {
+		if (yCollisions.size() > 0) {
+			for (auto& pV : yCollisions) {
+				if (pV.y > 0) {
+					//std::cout << "Colliding with ground" << std::endl;
+					onGround = true;
+					jumping = false;
+					velocity.y = 0;
+					//std::cout << "Hit the ground!" << std::endl;
+					break;
+				}
+				if (pV.y < 0) {
+					velocity.y = 0;
+				}
 			}
 		}
 	}
-
-	std::cout << "Velocity: " << velocity.toString() << ", onGround: " << onGround << ", jumping: " << jumping << std::endl;
+	//std::cout << "YVelocity: " << velocity.y << ", onGround: " << onGround << ", jumping: " << jumping << std::endl;
 
 }

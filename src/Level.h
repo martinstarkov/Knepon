@@ -18,7 +18,7 @@ public:
 		}
 		return nullptr;
 	}
-
+	int width, height;
 	std::vector<std::vector<int>> levelData;
 	std::vector<std::vector<DGameObject*>> drawableLevelObjects;
 	std::vector<std::vector<UGameObject*>> updateableLevelObjects;

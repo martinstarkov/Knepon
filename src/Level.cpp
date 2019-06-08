@@ -21,6 +21,8 @@ Level::Level(std::string levelName, std::string mapFilePath) : name(levelName) {
 			}
 			levelData.push_back(row);
 		}
+		width = columns * TILE_WIDTH;
+		height = rows * TILE_HEIGHT;
 		for (double r = 0; r < rows; r++) {
 			std::vector<DGameObject*> tmpVec;
 			std::vector<UGameObject*> tmpVec2;
