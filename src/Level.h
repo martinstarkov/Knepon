@@ -11,16 +11,17 @@ public:
 	void drawLevel();
 
 	GameObject* getTile(int x, int y) {
-		if (x < drawableLevelObjects.size()) {
-			if (y < drawableLevelObjects[x].size()) {
-				return drawableLevelObjects[x][y];
+		if (x < levelObjects.size()) {
+			if (y < levelObjects[x].size()) {
+				return levelObjects[x][y];
 			}
 		}
 		return nullptr;
 	}
-	int width, height;
+	Vector2D entryPoint = { 0, 0 };
+	Vector2D playerSpawn = { 0, 0 };
+	int width = 0, height = 0;
 	std::vector<std::vector<int>> levelData;
-	std::vector<std::vector<DGameObject*>> drawableLevelObjects;
-	std::vector<std::vector<UGameObject*>> updateableLevelObjects;
+	std::vector<std::vector<GameObject*>> levelObjects;
 	std::string name;
 };

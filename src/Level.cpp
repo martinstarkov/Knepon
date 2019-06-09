@@ -21,41 +21,45 @@ Level::Level(std::string levelName, std::string mapFilePath) : name(levelName) {
 			}
 			levelData.push_back(row);
 		}
-		width = columns * TILE_WIDTH;
-		height = rows * TILE_HEIGHT;
+		width = (int)columns * TILE_WIDTH;
+		height = (int)rows * TILE_HEIGHT;
 		for (double r = 0; r < rows; r++) {
-			std::vector<DGameObject*> tmpVec;
-			std::vector<UGameObject*> tmpVec2;
+			std::vector<GameObject*> tmpVec;
 			for (double c = 0; c < columns; c++) {
-				DGameObject* dobject = nullptr;
-				UGameObject* uobject = nullptr;
+				GameObject* object = nullptr;
 				int code = levelData[int(r)][int(c)];
-				if (code == GRASS) {
-					dobject = new DGameObject("grass", { c * double(TILE_WIDTH), r * double(TILE_WIDTH) }, "resources/grass.png");
-					dobject->setTilePosition({ c, r });
+				if (code == PLAYERSPAWN) {
+					playerSpawn = { c * double(TILE_WIDTH), r * double(TILE_WIDTH) };
+				} else if (code == GRASS) {
+					object = new DGameObject("grass", { c * double(TILE_WIDTH), r * double(TILE_WIDTH) }, { double(TILE_WIDTH), double(TILE_WIDTH) }, "resources/grass.png");
 				} else if (code == DIRT) {
-					dobject = new DGameObject("dirt", { c * double(TILE_WIDTH), r * double(TILE_WIDTH) }, "resources/dirt.png");
-					dobject->setTilePosition({ c, r });
-				} else if (code == 800) {
-					uobject = new UGameObject("trigger1", { c * double(TILE_WIDTH), r * double(TILE_WIDTH) }, "create bridge");
-					uobject->setTilePosition({ c, r });
+					object = new DGameObject("dirt", { c * double(TILE_WIDTH), r * double(TILE_WIDTH) }, { double(TILE_WIDTH), double(TILE_WIDTH) }, "resources/dirt.png");
+				} else if (code == PUMPKIN) {
+					object = new DGameObject("pumpkin", { c * double(TILE_WIDTH), r * double(TILE_WIDTH) }, { double(TILE_WIDTH), double(TILE_WIDTH) }, "resources/pumpkin.png");
+				} else if (code == STONE) {
+					object = new DGameObject("stone", { c * double(TILE_WIDTH), r * double(TILE_WIDTH) }, { double(TILE_WIDTH), double(TILE_WIDTH) }, "resources/stone.png");
+				} else if (code == SNOW) {
+					object = new DGameObject("dirt", { c * double(TILE_WIDTH), r * double(TILE_WIDTH) }, { double(TILE_WIDTH), double(TILE_WIDTH) }, "resources/snow.png");
+				} else if (code == DOOR) {
+					entryPoint = { c * double(TILE_WIDTH), r * double(TILE_WIDTH) };
+					object = new DGameObject("door", { c * double(TILE_WIDTH), r * double(TILE_WIDTH) }, { double(TILE_WIDTH), double(TILE_WIDTH) }, "resources/door.png", true);
 				}
-				tmpVec.push_back(dobject);
-				tmpVec2.push_back(uobject);
+				object->setTilePosition({ c, r });
+				tmpVec.push_back(object);
 			}
-			drawableLevelObjects.push_back(tmpVec);
-			updateableLevelObjects.push_back(tmpVec2);
+			levelObjects.push_back(tmpVec);
 		}
+		std::cout << "Successfully loaded level: """ << name << """, [" << columns << "x" << rows << "] tiles" << std::endl;
 	}
 }
 
 void Level::drawLevel() {
 	if (this != nullptr) {
-		if (drawableLevelObjects.size() > 0) {
-			for (int r = 0; r < drawableLevelObjects.size(); r++) {
-				for (int c = 0; c < drawableLevelObjects[0].size(); c++) {
-					if (drawableLevelObjects[r][c] != nullptr) {
-						drawableLevelObjects[r][c]->draw();
+		if (levelObjects.size() > 0) {
+			for (int r = 0; r < levelObjects.size(); r++) {
+				for (int c = 0; c < levelObjects[0].size(); c++) {
+					if (levelObjects[r][c] != nullptr) {
+						levelObjects[r][c]->runClassSpecific();
 					}
 				}
 			}

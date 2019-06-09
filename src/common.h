@@ -22,6 +22,11 @@
 #include "Level.h"
 #include "GameWorld.h"
 
+#define PLAYERSPAWN 1000
 #define AIR 0
 #define GRASS 1
 #define DIRT 2
+#define STONE 3
+#define DOOR 7
+#define SNOW 9
+#define PUMPKIN 10

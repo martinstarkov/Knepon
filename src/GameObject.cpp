@@ -1,20 +1,20 @@
 #include "common.h"
 
-GameObject::GameObject(std::string aName, Vector2D aPosition) : name(aName), position(aPosition), originalPosition(aPosition) {
+GameObject::GameObject(std::string aName, Vector2D aPosition, Vector2D aSize, bool isInteractable) : name(aName), position(aPosition), originalPosition(aPosition), size(aSize), interactable(isInteractable) {
 }
 
-DGameObject::DGameObject(std::string aName, Vector2D aPosition, std::string aTexture, SDL_RendererFlip aDirection) : texture(aTexture), direction(aDirection), GameObject(aName, aPosition) {
+DGameObject::DGameObject(std::string aName, Vector2D aPosition, Vector2D aSize, std::string aTexture, bool isInteractable, SDL_RendererFlip aDirection) : texture(aTexture), direction(aDirection), GameObject(aName, aPosition, aSize, isInteractable) {
 	TextureManager::load(texture);
 	if (aName != "player") {
 		GameWorld::drawableObjects.push_back(this);
 	}
 }
 
-UGameObject::UGameObject(std::string aName, Vector2D aPosition, std::string aType) : type(aType), GameObject(aName, aPosition) {
+UGameObject::UGameObject(std::string aName, Vector2D aPosition, Vector2D aSize, bool isInteractable, std::string aType) : type(aType), GameObject(aName, aPosition, aSize, isInteractable) {
 	GameWorld::updateableObjects.push_back(this);
 }
 
-DUGameObject::DUGameObject(std::string aName, Vector2D aPosition, std::string aType, std::string aTexture, Vector2D objSpeed, SDL_RendererFlip aDirection, Vector2D initVelocity) : speed(objSpeed), velocity(initVelocity), UGameObject(aName, aPosition, aType), DGameObject(aName, aPosition, aTexture, aDirection), GameObject(aName, aPosition) {
+DUGameObject::DUGameObject(std::string aName, Vector2D aPosition, Vector2D aSize, std::string aTexture, bool isInteractable, std::string aType, Vector2D aSpeed, SDL_RendererFlip aDirection, Vector2D aVelocity) : speed(aSpeed), velocity(aVelocity), UGameObject(aName, aPosition, aSize, isInteractable, aType), DGameObject(aName, aPosition, aSize, aTexture, isInteractable, aDirection), GameObject(aName, aPosition, aSize, isInteractable) {
 }
 
 void DGameObject::draw() {
@@ -79,12 +79,17 @@ void DUGameObject::update(double dt) {
 	Rectangle bpb = createBroadPhaseBox(newPosition);
 
 	std::vector<GameObject*> potentialColliders;
+	std::vector<GameObject*> potentialInteractables;
 
-	for (auto& row : GameWorld::getCurrentLevel()->drawableLevelObjects) {
+	for (auto& row : GameWorld::getCurrentLevel()->levelObjects) {
 		for (auto& box : row) {
 			if (box != nullptr) {
 				if (broadPhaseCheck(bpb, *box)) {
-					potentialColliders.push_back(box);
+					if (box->isInteractable()) {
+						potentialInteractables.push_back(box);
+					} else {
+						potentialColliders.push_back(box);
+					}
 				}
 			}
 		}
@@ -124,16 +129,18 @@ void DUGameObject::update(double dt) {
 		}
 
 	}
+
 	onGround = false;
+	jumping = true;
+
 	if (velocity.y != 0) {
 		if (yCollisions.size() > 0) {
 			for (auto& pV : yCollisions) {
 				if (pV.y > 0) {
-					//std::cout << "Colliding with ground" << std::endl;
+					//std::cout << "Hit the ground!" << std::endl;
 					onGround = true;
 					jumping = false;
 					velocity.y = 0;
-					//std::cout << "Hit the ground!" << std::endl;
 					break;
 				}
 				if (pV.y < 0) {
@@ -142,6 +149,20 @@ void DUGameObject::update(double dt) {
 			}
 		}
 	}
-	//std::cout << "YVelocity: " << velocity.y << ", onGround: " << onGround << ", jumping: " << jumping << std::endl;
+
+	canInteract = false;
+
+	for (auto& box : potentialInteractables) {
+
+		Rectangle rect = getMinkowskiDifference(*box);
+
+		if (rect.position.x <= 0 && rect.position.x + rect.size.x >= 0 && rect.position.y <= 0 && rect.position.y + rect.size.y >= 0) {
+			
+			canInteract = true;
+
+		}
+
+	}
+
 
 }

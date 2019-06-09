@@ -20,9 +20,25 @@ void InputHandler::inputKeyStates(const Uint8* states) {
 		Player::getInstance()->stop(Y);
 	}
 	//reset position
-	if (states[SDL_SCANCODE_R]) {
-		Player::getInstance()->setPosition(Player::getInstance()->getOriginalPosition());
+	if (states[SDL_SCANCODE_G]) {
+		Player::getInstance()->setPosition(GameWorld::getCurrentLevel()->playerSpawn);
 		Player::getInstance()->setVelocity({ 0, 0 });
+	}
+	if (states[SDL_SCANCODE_E] && Player::getInstance()->canInteractWithStuff()) {
+		if (GameWorld::getCurrentLevel()->name == "level2") {
+			Player::getInstance()->setVelocity({ 0, 0 });
+			GameWorld::setCurrentLevel("level1");
+			Player::getInstance()->setPosition(GameWorld::getCurrentLevel()->entryPoint);
+			Game::getInstance()->camera = { 0, 0, GameWorld::getCurrentLevel()->width, GameWorld::getCurrentLevel()->height };
+		}
+	}
+	if (states[SDL_SCANCODE_R] && Player::getInstance()->canInteractWithStuff()) {
+		if (GameWorld::getCurrentLevel()->name == "level1") {
+			Player::getInstance()->setVelocity({ 0, 0 });
+			GameWorld::setCurrentLevel("level2");
+			Player::getInstance()->setPosition(GameWorld::getCurrentLevel()->entryPoint);
+			Game::getInstance()->camera = { 0, 0, GameWorld::getCurrentLevel()->width, GameWorld::getCurrentLevel()->height };
+		}
 	}
 }
 

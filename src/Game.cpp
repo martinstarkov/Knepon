@@ -37,9 +37,10 @@ bool Game::init(const char* title, int xpos, int ypos, int width, int height, in
 
 	player = Player::getInstance();
 
-	//Level* level1 = new Level("level1", "levels/level1.txt");
+	Level* level1 = new Level("level1", "levels/level1.txt");
 	Level* level2 = new Level("level2", "levels/level2.txt");
-	GameWorld::setCurrentLevel(level2->name);
+	GameWorld::setCurrentLevel(level1->name);
+	player->setPosition(GameWorld::getCurrentLevel()->playerSpawn);
 	camera = { 0, 0, GameWorld::getCurrentLevel()->width, GameWorld::getCurrentLevel()->height };
 	
 	return true;
@@ -51,31 +52,39 @@ void Game::handleEvents(SDL_Event* event) {
 
 void Game::update(double dt) {
 	player->update(dt);
-	camera.x = player->getPosition().x - SCREEN_WIDTH / 2;
-	camera.y = player->getPosition().y - SCREEN_HEIGHT / 2;
-
-	if (camera.x < 0) {
-		camera.x = 0;
+	camera.x = (int)player->getPosition().x - SCREEN_WIDTH / 2;
+	camera.y = (int)player->getPosition().y - SCREEN_HEIGHT / 2;
+	if (camera.w > GameWorld::getCurrentLevel()->width) {
+		camera.w = GameWorld::getCurrentLevel()->width;
 	}
-	if (camera.y < 0) {
-		camera.y = 0;
+	if (camera.h > GameWorld::getCurrentLevel()->height) {
+		camera.h = GameWorld::getCurrentLevel()->height;
 	}
-	if (camera.x > GameWorld::getCurrentLevel()->width - SCREEN_WIDTH) {
-		camera.x = GameWorld::getCurrentLevel()->width - SCREEN_WIDTH;
+	if (camera.w > GameWorld::getCurrentLevel()->width && camera.h > GameWorld::getCurrentLevel()->height) {
+		if (camera.x < 0) {
+			camera.x = 0;
+		}
+		if (camera.y < 0) {
+			camera.y = 0;
+		}
+		if (camera.x > GameWorld::getCurrentLevel()->width - SCREEN_WIDTH) {
+			camera.x = GameWorld::getCurrentLevel()->width - SCREEN_WIDTH;
+		}
+		if (camera.y > GameWorld::getCurrentLevel()->height - SCREEN_HEIGHT) {
+			camera.y = GameWorld::getCurrentLevel()->height - SCREEN_HEIGHT;
+		}
 	}
-	if (camera.y > GameWorld::getCurrentLevel()->height - SCREEN_HEIGHT) {
-		camera.y = GameWorld::getCurrentLevel()->height - SCREEN_HEIGHT;
-	}
-	std::cout << "Width: " << GameWorld::getCurrentLevel()->width << std::endl;
 }
 
 void Game::render() {
 	SDL_RenderClear(renderer);
 
-	player->draw();
 	GameWorld::getCurrentLevel()->drawLevel();
+	player->draw();
+	//SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
+	//SDL_RenderDrawRect(renderer, &camera);
 
-	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+	SDL_SetRenderDrawColor(renderer, 195, 198, 186, 255);
 	SDL_RenderPresent(renderer);
 }
 
