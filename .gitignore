@@ -1,5 +1,5 @@
 # Ignore folders
-resources
+# resources
 
 # Ignore files
 *.sln
