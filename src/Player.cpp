@@ -3,7 +3,7 @@
 Player* Player::instance;
 std::vector<GameObject*> Player::collideableObjects;
 
-Player::Player(std::string aName, Vector2D aPosition, Vector2D aSize, std::string aTexture, bool isInteractable, std::string aType, Vector2D aSpeed, SDL_RendererFlip aDirection, Vector2D aVelocity) : DUGameObject(aName, aPosition, aSize, aTexture, isInteractable, aType, aSpeed, aDirection, aVelocity), UGameObject(aName, aPosition, aSize, isInteractable, aType), DGameObject(aName, aPosition, aSize, aTexture, isInteractable, aDirection), GameObject(aName, aPosition, aSize, isInteractable) {
+Player::Player(std::string aName, Vector2D aPosition, std::string aTexture, Vector2D aSize, bool isInteractable, std::string aType, Vector2D aSpeed, SDL_RendererFlip aDirection, Vector2D aVelocity) : DUGameObject(aName, aPosition, aTexture, aSize, isInteractable, aType, aSpeed, aDirection, aVelocity), UGameObject(aName, aPosition, aSize, isInteractable, aType), DGameObject(aName, aPosition, aTexture, aSize, isInteractable, aDirection), GameObject(aName, aPosition, aSize, isInteractable) {
 }
 
 void Player::update(double dt) {

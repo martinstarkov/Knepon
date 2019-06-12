@@ -3,6 +3,7 @@
 #include "Vector2D.h"
 
 extern const int TILE_WIDTH, TILE_HEIGHT;
+extern const Vector2D TILE_SIZE;
 
 struct Drawable {
 	virtual void draw() = 0;
@@ -68,7 +69,7 @@ protected:
 
 class DGameObject : public Drawable, virtual public GameObject {
 public:
-	DGameObject(std::string aName, Vector2D aPosition, Vector2D aSize, std::string aTexture, bool isInteractable = false, SDL_RendererFlip aDirection = SDL_FLIP_NONE);
+	DGameObject(std::string aName, Vector2D aPosition, std::string aTexture, Vector2D aSize = TILE_SIZE, bool isInteractable = false, SDL_RendererFlip aDirection = SDL_FLIP_NONE);
 	~DGameObject() {}
 	virtual void draw();
 	virtual void runClassSpecific() {
@@ -91,7 +92,7 @@ protected:
 
 class DUGameObject : virtual public DGameObject, virtual public UGameObject {
 public:
-	DUGameObject(std::string aName, Vector2D aPosition, Vector2D aSize, std::string aTexture, bool isInteractable = false, std::string aType = "", Vector2D aSpeed = { 0, 0 }, SDL_RendererFlip aDirection = SDL_FLIP_NONE, Vector2D aVelocity = { 0, 0 });
+	DUGameObject(std::string aName, Vector2D aPosition, std::string aTexture, Vector2D aSize = TILE_SIZE, bool isInteractable = false, std::string aType = "", Vector2D aSpeed = { 0, 0 }, SDL_RendererFlip aDirection = SDL_FLIP_NONE, Vector2D aVelocity = { 0, 0 });
 	~DUGameObject() {}
 	void update(double dt) override;
 	void runClassSpecific() override {}

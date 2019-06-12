@@ -26,24 +26,7 @@ Level::Level(std::string levelName, std::string mapFilePath) : name(levelName) {
 		for (double r = 0; r < rows; r++) {
 			std::vector<GameObject*> tmpVec;
 			for (double c = 0; c < columns; c++) {
-				GameObject* object = nullptr;
-				int code = levelData[int(r)][int(c)];
-				if (code == PLAYERSPAWN) {
-					playerSpawn = { c * double(TILE_WIDTH), r * double(TILE_WIDTH) };
-				} else if (code == GRASS) {
-					object = new DGameObject("grass", { c * double(TILE_WIDTH), r * double(TILE_WIDTH) }, { double(TILE_WIDTH), double(TILE_WIDTH) }, "resources/grass.png");
-				} else if (code == DIRT) {
-					object = new DGameObject("dirt", { c * double(TILE_WIDTH), r * double(TILE_WIDTH) }, { double(TILE_WIDTH), double(TILE_WIDTH) }, "resources/dirt.png");
-				} else if (code == PUMPKIN) {
-					object = new DGameObject("pumpkin", { c * double(TILE_WIDTH), r * double(TILE_WIDTH) }, { double(TILE_WIDTH), double(TILE_WIDTH) }, "resources/pumpkin.png");
-				} else if (code == STONE) {
-					object = new DGameObject("stone", { c * double(TILE_WIDTH), r * double(TILE_WIDTH) }, { double(TILE_WIDTH), double(TILE_WIDTH) }, "resources/stone.png");
-				} else if (code == SNOW) {
-					object = new DGameObject("dirt", { c * double(TILE_WIDTH), r * double(TILE_WIDTH) }, { double(TILE_WIDTH), double(TILE_WIDTH) }, "resources/snow.png");
-				} else if (code == DOOR) {
-					entryPoint = { c * double(TILE_WIDTH), r * double(TILE_WIDTH) };
-					object = new DGameObject("door", { c * double(TILE_WIDTH), r * double(TILE_WIDTH) }, { double(TILE_WIDTH), double(TILE_WIDTH) }, "resources/door.png", true);
-				}
+				GameObject* object = determineObject(int(r), int(c));
 				object->setTilePosition({ c, r });
 				tmpVec.push_back(object);
 			}
@@ -51,6 +34,29 @@ Level::Level(std::string levelName, std::string mapFilePath) : name(levelName) {
 		}
 		std::cout << "Successfully loaded level: """ << name << """, [" << columns << "x" << rows << "] tiles" << std::endl;
 	}
+}
+
+GameObject* Level::determineObject(int r, int c) {
+	Vector2D coordinate = { double(c) * double(TILE_WIDTH), double(r) * double(TILE_WIDTH) };
+	switch (levelData[r][c]) {
+		case PLAYERSPAWN:
+			playerSpawn = coordinate;
+			break;
+		case GRASS:
+			return new DGameObject("grass", coordinate, "resources/grass.png");
+		case DIRT:
+			return new DGameObject("dirt", coordinate, "resources/dirt.png");
+		case PUMPKIN:
+			return new DGameObject("pumpkin", coordinate, "resources/pumpkin.png");
+		case STONE:
+			return new DGameObject("stone", coordinate, "resources/stone.png");
+		case SNOW:
+			return new DGameObject("snow", coordinate, "resources/snow.png");
+		case DOOR:
+			entryPoint = coordinate;
+			return new DGameObject("door", coordinate, "resources/door.png", TILE_SIZE, true);
+	}
+	return nullptr;
 }
 
 void Level::drawLevel() {

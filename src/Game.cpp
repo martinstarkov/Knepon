@@ -7,6 +7,7 @@ bool Game::running;
 
 extern const int SCREEN_WIDTH, SCREEN_HEIGHT;
 const int TILE_WIDTH = 16, TILE_HEIGHT = 16;
+const Vector2D TILE_SIZE = { double(TILE_WIDTH), double(TILE_WIDTH) };
 Player* player;
 SDL_Rect Game::camera;
 
@@ -54,21 +55,17 @@ void Game::update(double dt) {
 	player->update(dt);
 	camera.x = (int)player->getPosition().x - SCREEN_WIDTH / 2;
 	camera.y = (int)player->getPosition().y - SCREEN_HEIGHT / 2;
-	if (camera.w > GameWorld::getCurrentLevel()->width) {
-		camera.w = GameWorld::getCurrentLevel()->width;
-	}
-	if (camera.h > GameWorld::getCurrentLevel()->height) {
-		camera.h = GameWorld::getCurrentLevel()->height;
-	}
-	if (camera.w > GameWorld::getCurrentLevel()->width && camera.h > GameWorld::getCurrentLevel()->height) {
+	if (camera.w >= SCREEN_WIDTH) {
 		if (camera.x < 0) {
 			camera.x = 0;
 		}
-		if (camera.y < 0) {
-			camera.y = 0;
-		}
 		if (camera.x > GameWorld::getCurrentLevel()->width - SCREEN_WIDTH) {
 			camera.x = GameWorld::getCurrentLevel()->width - SCREEN_WIDTH;
+		}
+	}
+	if (camera.h >= SCREEN_HEIGHT) {
+		if (camera.y < 0) {
+			camera.y = 0;
 		}
 		if (camera.y > GameWorld::getCurrentLevel()->height - SCREEN_HEIGHT) {
 			camera.y = GameWorld::getCurrentLevel()->height - SCREEN_HEIGHT;

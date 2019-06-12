@@ -3,7 +3,7 @@
 GameObject::GameObject(std::string aName, Vector2D aPosition, Vector2D aSize, bool isInteractable) : name(aName), position(aPosition), originalPosition(aPosition), size(aSize), interactable(isInteractable) {
 }
 
-DGameObject::DGameObject(std::string aName, Vector2D aPosition, Vector2D aSize, std::string aTexture, bool isInteractable, SDL_RendererFlip aDirection) : texture(aTexture), direction(aDirection), GameObject(aName, aPosition, aSize, isInteractable) {
+DGameObject::DGameObject(std::string aName, Vector2D aPosition, std::string aTexture, Vector2D aSize, bool isInteractable, SDL_RendererFlip aDirection) : texture(aTexture), direction(aDirection), GameObject(aName, aPosition, aSize, isInteractable) {
 	TextureManager::load(texture);
 	if (aName != "player") {
 		GameWorld::drawableObjects.push_back(this);
@@ -11,10 +11,12 @@ DGameObject::DGameObject(std::string aName, Vector2D aPosition, Vector2D aSize, 
 }
 
 UGameObject::UGameObject(std::string aName, Vector2D aPosition, Vector2D aSize, bool isInteractable, std::string aType) : type(aType), GameObject(aName, aPosition, aSize, isInteractable) {
-	GameWorld::updateableObjects.push_back(this);
+	if (aName != "player") {
+		GameWorld::updateableObjects.push_back(this);
+	}
 }
 
-DUGameObject::DUGameObject(std::string aName, Vector2D aPosition, Vector2D aSize, std::string aTexture, bool isInteractable, std::string aType, Vector2D aSpeed, SDL_RendererFlip aDirection, Vector2D aVelocity) : speed(aSpeed), velocity(aVelocity), UGameObject(aName, aPosition, aSize, isInteractable, aType), DGameObject(aName, aPosition, aSize, aTexture, isInteractable, aDirection), GameObject(aName, aPosition, aSize, isInteractable) {
+DUGameObject::DUGameObject(std::string aName, Vector2D aPosition, std::string aTexture, Vector2D aSize, bool isInteractable, std::string aType, Vector2D aSpeed, SDL_RendererFlip aDirection, Vector2D aVelocity) : speed(aSpeed), velocity(aVelocity), UGameObject(aName, aPosition, aSize, isInteractable, aType), DGameObject(aName, aPosition, aTexture, aSize, isInteractable, aDirection), GameObject(aName, aPosition, aSize, isInteractable) {
 }
 
 void DGameObject::draw() {
