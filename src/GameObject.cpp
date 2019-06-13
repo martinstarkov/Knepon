@@ -83,8 +83,8 @@ void DUGameObject::update(double dt) {
 	std::vector<GameObject*> potentialColliders;
 	std::vector<GameObject*> potentialInteractables;
 
-	for (auto& row : GameWorld::getCurrentLevel()->levelObjects) {
-		for (auto& box : row) {
+	for (auto& box : GameWorld::getCurrentLevel()->collideableLevelObjects) {
+		//for (auto& box : row) {
 			if (box != nullptr) {
 				if (broadPhaseCheck(bpb, *box)) {
 					if (box->isInteractable()) {
@@ -94,7 +94,7 @@ void DUGameObject::update(double dt) {
 					}
 				}
 			}
-		}
+		//}
 	}
 
 	position.x = position.x + velocity.x * dt;
