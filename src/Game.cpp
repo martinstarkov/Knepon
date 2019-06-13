@@ -76,7 +76,10 @@ void Game::update(double dt) {
 void Game::render() {
 	SDL_RenderClear(renderer);
 
-	GameWorld::getCurrentLevel()->drawLevel();
+	for (auto& object : GameWorld::getCurrentLevel()->collideableLevelObjects) {
+		object->runClassSpecific();
+	}
+	//GameWorld::getCurrentLevel()->drawLevel();
 	player->draw();
 	//SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
 	//SDL_RenderDrawRect(renderer, &camera);
