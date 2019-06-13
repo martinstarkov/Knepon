@@ -32,10 +32,11 @@ Level::Level(std::string levelName, std::string mapFilePath) : name(levelName) {
 			}
 			levelObjects.push_back(tmpVec);
 		}
-		std::cout << "Successfully loaded level: """ << name << """, [" << columns << "x" << rows << "] tiles" << std::endl;
+		setCollideables();
+		std::cout << "Successfully loaded level: """ << name << """, [" << columns << "x" << rows << "] tiles, " << collideableLevelObjects.size() << " collideable objects" << std::endl;
 	}
 }
-
+//612
 GameObject* Level::determineObject(int r, int c) {
 	Vector2D coordinate = { double(c) * double(TILE_WIDTH), double(r) * double(TILE_WIDTH) };
 	switch (levelData[r][c]) {
@@ -57,6 +58,23 @@ GameObject* Level::determineObject(int r, int c) {
 			return new DGameObject("door", coordinate, "resources/door.png", TILE_SIZE, true);
 	}
 	return nullptr;
+}
+
+void Level::setCollideables() {
+	//collideableLevelObjects
+	if (levelObjects.size() > 0) {
+		for (int r = 0; r < levelObjects.size(); r++) {
+			for (int c = 0; c < levelObjects[0].size(); c++) {
+				if (levelObjects[r][c] != nullptr) {
+					if (getTile(r + 1, c) != nullptr && getTile(r + 1, c)->isInteractable() == false && getTile(r - 1, c) != nullptr && getTile(r - 1, c)->isInteractable() == false && getTile(r, c + 1) != nullptr && getTile(r, c + 1)->isInteractable() == false && getTile(r, c - 1) != nullptr && getTile(r, c - 1)->isInteractable() == false) {
+						//landlocked object
+					} else {
+						collideableLevelObjects.push_back(levelObjects[r][c]);
+					}
+				}
+			}
+		}
+	}
 }
 
 void Level::drawLevel() {

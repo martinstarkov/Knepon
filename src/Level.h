@@ -19,10 +19,12 @@ public:
 		return nullptr;
 	}
 	GameObject* determineObject(int r, int c);
+	void setCollideables();
 	Vector2D entryPoint = { 0, 0 };
 	Vector2D playerSpawn = { 0, 0 };
 	int width = 0, height = 0;
 	std::vector<std::vector<int>> levelData;
 	std::vector<std::vector<GameObject*>> levelObjects;
+	std::vector<GameObject*> collideableLevelObjects;
 	std::string name;
 };
