@@ -8,7 +8,7 @@ Player::Player(std::string aName, Vector2D aPosition, std::string aTexture, Vect
 
 void Player::update(double dt) {
 	if (!onGround) {
-		velocity.y += (gravity * pow(dt, 2)) / 2;
+		velocity.y += gravity;//(gravity * pow(dt, 2)) / 2;
 	}
 	DUGameObject::update(dt);
 }

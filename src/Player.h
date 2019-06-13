@@ -17,7 +17,7 @@ public:
 	void stop(Axis axis);
 	std::vector<Vector2D> collisionRadius;
 	static std::vector<GameObject*> collideableObjects;
-	double gravity = 100000;
+	double gravity = 7;
 private:
 	static Player* instance;
 };
