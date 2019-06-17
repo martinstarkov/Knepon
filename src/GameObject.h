@@ -40,6 +40,9 @@ public:
 	Vector2D getTilePosition() {
 		return tilePosition;
 	}
+	Vector2D findTilePosition() {
+		return (position / size).floor();
+	}
 	Vector2D getOriginalPosition() {
 		return originalPosition;
 	}
