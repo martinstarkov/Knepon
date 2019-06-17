@@ -8,7 +8,7 @@ public:
 	static Player* getInstance() {
 		if (instance == 0) {
 			//velocity: 150, 300
-			instance = new Player("player", { 0, 0 }, "resources/squirrel_resting.png", { 16, 16 }, false, "player", { 150, 300 });
+			instance = new Player("player", { 0, 0 }, "resources/squirrel_resting.png", { 16, 16 }, false, "player", { 1, 2 });
 		}
 		return instance;
 	}
@@ -17,7 +17,7 @@ public:
 	void stop(Axis axis);
 	std::vector<Vector2D> collisionRadius;
 	static std::vector<GameObject*> collideableObjects;
-	double gravity = 7;
+	double gravity = 0.05;
 private:
 	static Player* instance;
 };

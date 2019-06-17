@@ -76,7 +76,7 @@ bool DUGameObject::broadPhaseCheck(Rectangle bp, GameObject box) {
 
 void DUGameObject::update(double dt) {
 
-	Vector2D newPosition = position + velocity * dt;
+	Vector2D newPosition = position + velocity;
 
 	Rectangle bpb = createBroadPhaseBox(newPosition);
 
@@ -97,7 +97,7 @@ void DUGameObject::update(double dt) {
 		//}
 	}
 
-	position.x = position.x + velocity.x * dt;
+	position.x = position.x + velocity.x;
 
 	for(auto& box : potentialColliders) {
 
@@ -113,7 +113,7 @@ void DUGameObject::update(double dt) {
 
 	}
 
-	position.y = position.y + velocity.y * dt;
+	position.y = position.y + velocity.y;
 
 	std::vector<Vector2D> yCollisions;
 
@@ -166,5 +166,6 @@ void DUGameObject::update(double dt) {
 
 	}
 
+	tilePosition = findTilePosition();
 
 }
