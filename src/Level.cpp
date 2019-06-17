@@ -36,7 +36,7 @@ Level::Level(std::string levelName, std::string mapFilePath) : name(levelName) {
 		std::cout << "Successfully loaded level: """ << name << """, [" << columns << "x" << rows << "] tiles, " << collideableLevelObjects.size() << " collideable objects" << std::endl;
 	}
 }
-//612
+
 GameObject* Level::determineObject(int r, int c) {
 	Vector2D coordinate = { double(c) * double(TILE_WIDTH), double(r) * double(TILE_WIDTH) };
 	switch (levelData[r][c]) {
