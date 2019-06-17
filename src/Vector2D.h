@@ -21,8 +21,14 @@ public:
 	Vector2D abs() {
 		return { std::abs(x), std::abs(y) };
 	}
+	Vector2D floor() {
+		return { std::floor(x), std::floor(y) };
+	}
 	Vector2D operator /(double scalar) {
 		return { x / scalar, y / scalar };
+	}
+	Vector2D operator /(Vector2D vec2) {
+		return { x / vec2.x, y / vec2.y };
 	}
 	Vector2D operator *(double scalar) {
 		return { x * scalar, y * scalar };
