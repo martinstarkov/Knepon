@@ -75,14 +75,15 @@ void Game::update(double dt) {
 
 void Game::render() {
 	SDL_RenderClear(renderer);
-
+	
 	for (auto& object : GameWorld::getCurrentLevel()->collideableLevelObjects) {
 		object->runClassSpecific();
 	}
 	//GameWorld::getCurrentLevel()->drawLevel();
 	player->draw();
-	//SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
-	//SDL_RenderDrawRect(renderer, &camera);
+	SDL_Rect tileSquare = { int(player->getTilePosition().x) * TILE_WIDTH - camera.x, int(player->getTilePosition().y) * TILE_HEIGHT - camera.y, TILE_WIDTH, TILE_HEIGHT };
+	SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
+	SDL_RenderDrawRect(renderer, &tileSquare);
 
 	SDL_SetRenderDrawColor(renderer, 195, 198, 186, 255);
 	SDL_RenderPresent(renderer);
