@@ -81,9 +81,11 @@ void Game::render() {
 	}
 	//GameWorld::getCurrentLevel()->drawLevel();
 	player->draw();
+	SDL_Rect cameraTest = { camera.x - SCREEN_WIDTH / 2, camera.y - SCREEN_HEIGHT / 2, SCREEN_WIDTH, SCREEN_HEIGHT };
 	SDL_Rect tileSquare = { int(player->getTilePosition().x) * TILE_WIDTH - camera.x, int(player->getTilePosition().y) * TILE_HEIGHT - camera.y, TILE_WIDTH, TILE_HEIGHT };
 	SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
 	SDL_RenderDrawRect(renderer, &tileSquare);
+	SDL_RenderDrawRect(renderer, &cameraTest);
 
 	SDL_SetRenderDrawColor(renderer, 195, 198, 186, 255);
 	SDL_RenderPresent(renderer);
