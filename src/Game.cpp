@@ -53,14 +53,20 @@ void Game::handleEvents(SDL_Event* event) {
 
 void Game::update(double dt) {
 	player->update(dt);
-	camera.x = (int)player->getPosition().x - SCREEN_WIDTH / 2;
-	camera.y = (int)player->getPosition().y - SCREEN_HEIGHT / 2;
+	camera.x = ((int)player->getPosition().x - SCREEN_WIDTH / 2);
+	camera.y = ((int)player->getPosition().y - SCREEN_HEIGHT / 2);
 	if (camera.w >= SCREEN_WIDTH) {
 		if (camera.x < 0) {
 			camera.x = 0;
 		}
 		if (camera.x > GameWorld::getCurrentLevel()->width - SCREEN_WIDTH) {
 			camera.x = GameWorld::getCurrentLevel()->width - SCREEN_WIDTH;
+		}
+		if (player->getPosition().x < 0) {
+			player->setPosition({ 0, player->getPosition().y });
+		}
+		if (player->getPosition().x > GameWorld::getCurrentLevel()->width - player->getSize().x) {
+			player->setPosition({ (double) GameWorld::getCurrentLevel()->width - player->getSize().x, player->getPosition().y });
 		}
 	}
 	if (camera.h >= SCREEN_HEIGHT) {
@@ -77,14 +83,18 @@ void Game::render() {
 	SDL_RenderClear(renderer);
 	
 	for (auto& object : GameWorld::getCurrentLevel()->collideableLevelObjects) {
-		object->runClassSpecific();
+		if ((object->getPosition().x > camera.x - player->getSize().x && object->getPosition().x < camera.x + SCREEN_WIDTH) || (camera.x == 0 && object->getPosition().x < camera.x + SCREEN_WIDTH) || (camera.x == GameWorld::getCurrentLevel()->width - SCREEN_WIDTH && object->getPosition().x < camera.x + SCREEN_WIDTH)) {
+			object->runClassSpecific();
+		}
 	}
+
 	//GameWorld::getCurrentLevel()->drawLevel();
 	player->draw();
-	SDL_Rect cameraTest = { camera.x - SCREEN_WIDTH / 2, camera.y - SCREEN_HEIGHT / 2, SCREEN_WIDTH, SCREEN_HEIGHT };
-	SDL_Rect tileSquare = { int(player->getTilePosition().x) * TILE_WIDTH - camera.x, int(player->getTilePosition().y) * TILE_HEIGHT - camera.y, TILE_WIDTH, TILE_HEIGHT };
+	SDL_Rect cameraTest = { player->getPosition().x - camera.x - SCREEN_WIDTH / 2, player->getPosition().y - camera.y - SCREEN_HEIGHT / 2, 32, 32 };
+	SDL_Rect tileSquare = { camera.x, camera.y, 16, 16 };
+	//SDL_Rect spawnRectangle = { 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT };
 	SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
-	SDL_RenderDrawRect(renderer, &tileSquare);
+	//SDL_RenderDrawRect(renderer, &tileSquare);
 	SDL_RenderDrawRect(renderer, &cameraTest);
 
 	SDL_SetRenderDrawColor(renderer, 195, 198, 186, 255);
