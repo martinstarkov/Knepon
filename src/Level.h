@@ -26,5 +26,6 @@ public:
 	std::vector<std::vector<int>> levelData;
 	std::vector<std::vector<GameObject*>> levelObjects;
 	std::vector<GameObject*> collideableLevelObjects;
+	std::vector<GameObject*> drawableLevelObjects;
 	std::string name;
 };

@@ -28,13 +28,13 @@ int main(int argc, char* args[]) {
 			if (time - lastTime > 1000) {
 				lastTime = time;  // we're too far behind, catch up
 			}
-			int updatesNeeded = (time - lastTime) / UPDATE_TICK;
+			int updatesNeeded = (int) ((time - lastTime) / UPDATE_TICK);
 
 			instance->handleEvents(&event);
 
 			for (int i = 0; i < updatesNeeded; i++) {
 				instance->update(0);
-				lastTime += UPDATE_TICK;
+				lastTime += (Uint32) UPDATE_TICK;
 			}
 
 			instance->render();

@@ -71,6 +71,7 @@ void Level::setCollideables() {
 					} else {
 						collideableLevelObjects.push_back(levelObjects[r][c]);
 					}
+					drawableLevelObjects.push_back(levelObjects[r][c]);
 				}
 			}
 		}

@@ -20,7 +20,7 @@ DUGameObject::DUGameObject(std::string aName, Vector2D aPosition, std::string aT
 }
 
 void DGameObject::draw() {
-	TextureManager::draw(texture, { (int)floor(position.x) - Game::getInstance()->camera.x, (int)floor(position.y) - Game::getInstance()->camera.y, 16, 16 }, direction);
+	TextureManager::draw(texture, { ((int)floor(position.x) - Game::getInstance()->camera.x), ((int)floor(position.y) - Game::getInstance()->camera.y), 16, 16 }, direction);
 }
 
 void UGameObject::update(double dt) {
@@ -77,6 +77,7 @@ bool DUGameObject::broadPhaseCheck(Rectangle bp, GameObject box) {
 void DUGameObject::update(double dt) {
 
 	Vector2D newPosition = position + velocity;
+
 
 	Rectangle bpb = createBroadPhaseBox(newPosition);
 
